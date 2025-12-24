@@ -3495,7 +3495,7 @@ ${frameHtml}
   </div>
 
 <div class="mdm-insta-frames">
-<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-bottom:5px; writing-mode: vertical-rl; transform: rotate(180deg);">KOLEKSİYON</div>
+<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-bottom:5px; writing-mode: vertical-rl; transform: rotate(180deg);">ÇERÇEVE KOLEKSİYONU</div>
 ${framesListHtml}
   </div>
   </div>
