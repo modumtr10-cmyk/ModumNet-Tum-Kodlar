@@ -366,6 +366,24 @@ margin-top: 0 !important;
     };
     window.APP_STATE = APP_STATE;
     window.fetchApiTest = fetchApi;
+    // --- 🖼️ PROFİL AVATAR KÜTÜPHANESİ (ANIME & TARZ) ---
+    var AVATAR_LIBRARY = [
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=Molly",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Precious",
+      "https://api.dicebear.com/7.x/big-ears/svg?seed=Tiger",
+      "https://api.dicebear.com/7.x/micah/svg?seed=Coco",
+      "https://api.dicebear.com/7.x/notionists/svg?seed=Cookie",
+      "https://api.dicebear.com/7.x/open-peeps/svg?seed=Bella",
+      "https://api.dicebear.com/7.x/personas/svg?seed=Trouble",
+      "https://api.dicebear.com/7.x/pixel-art/svg?seed=Midnight",
+      "https://api.dicebear.com/7.x/bottts/svg?seed=Rover",
+      "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Spooky",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=Ginger",
+      "https://api.dicebear.com/7.x/miniavs/svg?seed=Loki"
+    ];
     // ======================================================
     // 🔥 GLOBAL ROZET VERİTABANI (TEK MERKEZ)
     // ======================================================
@@ -1910,7 +1928,190 @@ bottom: -10px; right: -10px;
 width: 20px; height: 20px;
 background: #1e293b;
 border-radius: 50%;
-}   
+}
+/* --- 📸 INSTAGRAM TARZI PROFİL (YENİ) --- */
+
+/* Sol Taraf: Avatar */
+.mdm-insta-avatar-area {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: flex-start;
+}
+.mdm-insta-avatar-img {
+width: 140px;
+height: 140px;
+border-radius: 50%;
+object-fit: cover;
+border: 4px solid #10b981; /* Varsayılan Yeşil Border */
+box-shadow: 0 0 20px rgba(0,0,0,0.3);
+background: #0f172a;
+}
+
+/* Orta Taraf: Bilgiler */
+.mdm-insta-info {
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+.mdm-insta-header {
+display: flex;
+align-items: center;
+gap: 15px;
+margin-bottom: 10px;
+flex-wrap: wrap;
+}
+.mdm-insta-username {
+font-size: 24px;
+font-weight: 800;
+color: #fff;
+font-family: 'Inter', sans-serif;
+}
+.mdm-insta-edit-btn {
+background: #334155;
+color: #fff;
+border: 1px solid #475569;
+padding: 6px 15px;
+border-radius: 8px;
+font-size: 12px;
+font-weight: 600;
+cursor: pointer;
+transition: 0.2s;
+}
+.mdm-insta-edit-btn:hover { background: #475569; }
+
+.mdm-insta-bio {
+font-size: 13px;
+color: #cbd5e1;
+line-height: 1.5;
+margin-bottom: 20px;
+max-width: 500px;
+}
+
+.mdm-insta-stats {
+display: flex;
+gap: 30px;
+margin-bottom: 20px;
+}
+.mdm-stat-item { text-align: center; }
+.mdm-stat-num { font-size: 18px; font-weight: 800; color: #fff; display: block; }
+.mdm-stat-label { font-size: 11px; color: #94a3b8; }
+
+/* Sağ Taraf: Çerçeveler (Dikey) */
+.mdm-mini-frame-icon {
+width: 40px; height: 40px;
+border-radius: 50%;
+background: #0f172a;
+border: 2px solid #475569;
+cursor: pointer;
+position: relative;
+}
+.mdm-mini-frame-icon:hover { border-color: #fff; }
+
+/* Sağ Üst Köşe: Puan */
+.mdm-insta-score-badge {
+position: absolute;
+top: 20px;
+right: 20px;
+background: linear-gradient(135deg, #f59e0b, #d97706);
+padding: 8px 15px;
+border-radius: 50px;
+color: #fff;
+font-weight: 800;
+font-size: 14px;
+box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+/* 📱 MOBİL UYUMLULUK */
+@media (max-width: 768px) {
+.mdm-insta-avatar-area { margin: 0 auto; }
+.mdm-insta-header { justify-content: center; flex-direction: column; gap: 5px; }
+.mdm-insta-stats { justify-content: center; gap: 20px; }
+.mdm-insta-bio { margin: 0 auto 15px auto; }    
+}
+/* --- GÜNCELLENMİŞ INSTAGRAM STİLİ (KAYDIRMA + TEMA DESTEKLİ) --- */
+.mdm-insta-card {
+display: grid;
+grid-template-columns: 140px 1fr 80px;
+gap: 15px;
+/* Arka plan rengini sildim, JS'den dinamik gelecek */
+border: 1px solid rgba(255,255,255,0.1); 
+border-radius: 20px;
+padding: 20px;
+margin-bottom: 20px;
+position: relative;
+transition: background 0.3s ease;
+}
+
+.mdm-insta-frames { 
+display: flex; 
+flex-direction: column; 
+gap: 8px; 
+align-items: center; 
+border-left: 1px solid rgba(255,255,255,0.1); 
+padding-left: 10px; 
+
+/* 🔥 KAYDIRMA ÖZELLİĞİ BURADA 🔥 */
+max-height: 250px;       /* Yükseklik sınırı */
+overflow-y: auto;        /* Dikey kaydırma */
+scrollbar-width: thin;   /* İnce kaydırma çubuğu */
+}
+
+/* Kaydırma Çubuğu Güzelleştirme */
+.mdm-insta-frames::-webkit-scrollbar { width: 4px; }
+.mdm-insta-frames::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+.mdm-insta-frames::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+
+/* Diğer Ayarlar */
+.mdm-insta-avatar-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #10b981; background: #000; }
+.mdm-insta-info { display: flex; flex-direction: column; justify-content: center; }
+.mdm-insta-username { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.mdm-insta-bio { font-size: 12px; color: #e2e8f0; margin: 10px 0; line-height: 1.4; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.mdm-insta-stats { display: flex; gap: 20px; margin-bottom: 10px; }
+.mdm-stat-item { text-align: center; }
+.mdm-stat-num { font-size: 16px; font-weight: 800; color: #fff; display:block; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+.mdm-stat-label { font-size: 10px; color: #cbd5e1; }
+.mdm-mini-frame-icon { width: 35px; height: 35px; border-radius: 50%; background: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; position: relative; flex-shrink: 0; }
+
+/* MOBİL */
+@media (max-width: 768px) {
+.mdm-insta-card { grid-template-columns: 1fr; text-align: center; }
+.mdm-insta-frames { flex-direction: row; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; width: 100%; overflow-x: auto; max-height: none; }
+.mdm-insta-avatar-area { margin: 0 auto; }
+.mdm-insta-header { justify-content: center; flex-direction: column; }
+.mdm-insta-stats { justify-content: center; }
+}
+/* --- 🔘 PROFİL BUTON GRUBU AYARLARI (RESPONSIVE) --- */
+
+/* Ortak Ayarlar */
+.mdm-profile-actions {
+display: flex;
+gap: 10px;
+align-items: center;
+}
+
+/* 📱 MOBİL GÖRÜNÜM (Dar Ekran) */
+@media (max-width: 768px) {
+.mdm-profile-actions {
+justify-content: center; /* Ortala */
+margin-top: 10px;
+margin-bottom: 10px;
+width: 100%;
+}
+}
+
+/* 💻 MASAÜSTÜ GÖRÜNÜM (Geniş Ekran) */
+@media (min-width: 769px) {
+.mdm-profile-actions {
+/* Burayı istediğin gibi oynayabilirsin */
+justify-content: flex-start; /* Sola yasla (İsim altına) */
+margin-top: 15px;            /* İsimden biraz uzaklaşsın */
+margin-left: 0px;            /* Soldan boşluk */
+
+/* Alternatif: Sağa yaslamak istersen 'flex-start' yerine 'flex-end' yaz */
+/* Alternatif 2: Eğer butonları büyütmek istersen: transform: scale(1.1); */
+}
+}
 `;
 
     // ======================================================
@@ -2169,39 +2370,33 @@ border-radius: 50%;
             if (index === 1) icon = "🥈";
             if (index === 2) icon = "🥉";
 
-            // AVATAR BELİRLEME
+
+            // AVATAR BELİRLEME (GÜNCELLENMİŞ)
             var userName = u.name || "Gizli";
-            var userAvatar = userName.charAt(0).toUpperCase();
-            var avatarStyle = "";
+            var userAvatar = "🌱"; // Varsayılan
+            var avatarStyle = "background:transparent; border:none; font-size:18px;";
+
             var uThemeID = u.theme || "default";
             var uThemeData = PROFILE_THEMES[uThemeID] || PROFILE_THEMES["default"];
             var rowStyle = `background: ${uThemeData.bg}; border: 1px solid ${uThemeData.border}; box-shadow: 0 0 10px ${uThemeData.glow}40; transition:0.2s;`;
 
-            if (u.avatar && BADGES_ICONS[u.avatar]) {
+            // 🔥 1. KONTROL: RESİM LİNKİ VARSA (Anime/Profil Resmi)
+            if (u.avatar && (u.avatar.indexOf("http") > -1 || u.avatar.indexOf("data:image") > -1)) {
+              userAvatar = `<img src="${u.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">`;
+              // Resim olduğu için padding ve border'ı sıfırlıyoruz ki tam otursun
+              avatarStyle = "padding:0; background:transparent; border:none;";
+            } 
+            // 2. KONTROL: EMOJİ ROZET VARSA
+            else if (u.avatar && BADGES_ICONS[u.avatar]) {
               userAvatar = BADGES_ICONS[u.avatar];
-              avatarStyle =
-                "background:transparent; border:none; font-size:18px;";
-            } else if (u.level) {
-              if (u.level === "Çaylak") {
-                userAvatar = "🌱";
-                avatarStyle =
-                  "background:transparent; border:none; font-size:18px;";
-              }
-              if (u.level === "Usta") {
-                userAvatar = "⚔️";
-                avatarStyle =
-                  "background:transparent; border:none; font-size:18px;";
-              }
-              if (u.level === "Şampiyon") {
-                userAvatar = "🦁";
-                avatarStyle =
-                  "background:transparent; border:none; font-size:18px;";
-              }
-              if (u.level === "Efsane") {
-                userAvatar = "🐉";
-                avatarStyle =
-                  "background:transparent; border:none; font-size:18px;";
-              }
+              avatarStyle = "background:transparent; border:none; font-size:17px;";
+            }
+            // 3. KONTROL: HİÇBİRİ YOKSA RÜTBEYE BAK
+            else {
+              if (u.level === "Usta") userAvatar = "⚔️";
+              else if (u.level === "Şampiyon") userAvatar = "🦁";
+              else if (u.level === "Efsane") userAvatar = "🐉";
+              else userAvatar = "🌱"; // Çaylak
             }
 
             var safeXP = u.points ? parseInt(u.points).toLocaleString() : "0";
@@ -3140,284 +3335,184 @@ ${
         .join("");
     }
 
-    // --- PROFİL SEKMESİ (POP-UP VERSİYON v8.0) ---
+    // --- PROFİL SEKMESİ (BÜTÜNLEŞİK KART TASARIMI - TEMA İÇİNDE) ---
     function renderProfileTab(incomingUser) {
-      // 1. GÜNCEL VERİYİ AL
+      // 1. GÜVENLİK
       var user = incomingUser;
       if (!user || !user.email) {
-        try {
-          var cached = JSON.parse(localStorage.getItem("mdm_user_cache"));
-          if (cached && cached.email) user = cached;
-        } catch (e) {}
+        try { var cached = JSON.parse(localStorage.getItem("mdm_user_cache")); if (cached && cached.email) user = cached; } catch (e) {}
       }
-
       if (!user || !user.email) {
-        return `<div style="text-align:center; padding:50px 20px;">
-<div style="font-size:50px; margin-bottom:10px;">🔒</div>
-<h3 style="color:#fff; margin-bottom:10px;">Giriş Yapmalısın</h3>
-<a href="/kullanici-giris" class="mdm-btn-lucky" style="text-decoration:none; display:inline-flex; width:auto; padding:10px 30px;">GİRİŞ YAP</a>
-  </div>`;
+        return `<div style="text-align:center; padding:50px 20px;"><h3 style="color:#fff;">Giriş Yapmalısın</h3><a href="/kullanici-giris" class="mdm-btn-lucky">GİRİŞ YAP</a></div>`;
       }
 
-      // Veriler
+      // 2. TEMA VE RENK AYARLARI (Acil Durum Kitli)
+      var themesDB = null;
+      if(typeof PROFILE_THEMES !== 'undefined') themesDB = PROFILE_THEMES;
+      else if(typeof window.PROFILE_THEMES !== 'undefined') themesDB = window.PROFILE_THEMES;
+      else {
+        // Yedek Temalar
+        themesDB = {
+          "default": { bg: "#1e293b", border: "#334155", glow: "#334155" },
+          "caylak": { bg: "#064e3b", border: "#10b981", glow: "#10b981" },
+          "usta": { bg: "#3b0764", border: "#8b5cf6", glow: "#8b5cf6" },
+          "sampiyon": { bg: "#451a03", border: "#f59e0b", glow: "#f59e0b" },
+          "efsane": { bg: "#450a0a", border: "#ef4444", glow: "#ef4444" },
+          "gold": { bg: "linear-gradient(135deg, #422006, #713f12)", border: "#eab308", glow: "#eab308" },
+          "dark": { bg: "#000000", border: "#333333", glow: "#ffffff" }
+        };
+      }
+
+      var myThemeId = user.profileTheme || "default";
+      var theme = themesDB[myThemeId] || themesDB["default"];
+
+      // 🔥 KART STİLİ (Tüm içeriği kapsayacak stil)
+      var cardStyle = `background: ${theme.bg} !important; border: 1px solid ${theme.border}; box-shadow: 0 0 20px ${theme.glow}40; border-radius: 20px; padding: 20px; margin-bottom: 20px; position: relative; transition: background 0.3s ease;`;
+
+      // 3. TEMEL VERİLER
       var xp = parseInt(user.puan) || 0;
       var level = user.seviye || "Çaylak";
       var name = user.adSoyad || user.name || "Misafir";
-      var avatarDisplay = name.charAt(0).toUpperCase();
-      var isEmojiAvatar = false;
-      var myBadges = user.badges || [];
-      var selectedBadge = user.selectedAvatar || null;
-
-      // Çerçeveler (Hepsini birleştir)
-      var framesFromParam = user.ownedFrames || [];
-      var framesFromGlobal =
-          (window.APP_STATE &&
-           window.APP_STATE.user &&
-           window.APP_STATE.user.ownedFrames) ||
-          [];
-      var mergedFrames = [
-        ...new Set([...framesFromParam, ...framesFromGlobal]),
-      ];
-      var currentFrame = user.selectedFrame || "";
-
-      var myThemeId = user.profileTheme || "default";
-      var theme = PROFILE_THEMES[myThemeId] || PROFILE_THEMES["default"];
-      var cardStyle = `background:${theme.bg}; border:1px solid ${theme.border}; box-shadow:0 0 30px ${theme.glow}40;`;
-
-      if (selectedBadge && BADGES_DB[selectedBadge]) {
-        avatarDisplay = BADGES_DB[selectedBadge].i;
-        isEmojiAvatar = true;
-      }
 
       var ranks = {
-        Çaylak: {
-          color: "#10b981",
-          icon: "🌱",
-          class: "theme-caylak",
-          nextName: "Usta",
-          next: 2500,
-        },
-        Usta: {
-          color: "#8b5cf6",
-          icon: "🏆",
-          class: "theme-usta",
-          nextName: "Şampiyon",
-          next: 7500,
-        },
-        Şampiyon: {
-          color: "#f59e0b",
-          icon: "🥇",
-          class: "theme-sampiyon",
-          nextName: "Efsane",
-          next: 15000,
-        },
-        Efsane: {
-          color: "#ef4444",
-          icon: "👑",
-          class: "theme-efsane",
-          nextName: "Maksimum",
-          next: 999999,
-        },
+        Çaylak: { color: "#10b981", icon: "🌱", nextName: "Usta", next: 2500, class: "theme-caylak" },
+        Usta: { color: "#8b5cf6", icon: "🏆", nextName: "Şampiyon", next: 7500, class: "theme-usta" },
+        Şampiyon: { color: "#f59e0b", icon: "🥇", nextName: "Efsane", next: 15000, class: "theme-sampiyon" },
+        Efsane: { color: "#ef4444", icon: "👑", nextName: "Maksimum", next: 999999, class: "theme-efsane" }
       };
       var currentRank = ranks[level] || ranks["Çaylak"];
-
-      var avatarBorderStyle = "";
-      var frameHtml = "";
-
-      if (currentFrame && currentFrame !== "") {
-        // Özel çerçeve varsa
-        frameHtml = `<div class="mdm-avatar-frame ${currentFrame}"></div>`;
-        avatarBorderStyle = `border: 4px solid transparent;`; // Çerçeve varken border görünmesin
-      } else {
-        // Orjinal ise -> Rütbe Rengini Kullan
-        avatarBorderStyle = `border: 4px solid ${currentRank.color}; box-shadow: 0 0 15px ${currentRank.color};`;
-      }
 
       // İlerleme
       var progressPercent = 100;
       var nextLevelText = "Zirvedesin!";
       if (level !== "Efsane") {
-        var prevLimit = 0;
-        if (level === "Usta") prevLimit = 2500;
-        if (level === "Şampiyon") prevLimit = 7500;
         var goal = currentRank.next;
-        var currentInLevel = xp - prevLimit;
-        var goalInLevel = goal - prevLimit;
-        progressPercent = Math.min(
-          Math.max((currentInLevel / goalInLevel) * 100, 0),
-          100
-        );
-        nextLevelText = `${currentRank.nextName} rütbesine ${
-        goal - xp
-      } XP kaldı`;
+        var prevLimit = level === "Usta" ? 2500 : (level === "Şampiyon" ? 7500 : 0);
+        progressPercent = Math.min(Math.max(((xp - prevLimit) / (goal - prevLimit)) * 100, 0), 100);
+        nextLevelText = `${currentRank.nextName} için ${goal - xp} XP`;
       }
 
-      var menuStyle = `border:1px solid ${theme.border}; background:rgba(0, 0, 0, 0.2); box-shadow:0 4px 15px ${theme.glow}20;`;
-      var iconStyle = `background:${theme.border}20; color:${theme.border};`;
+      // Avatar
+      // --- 1. ÖNCE ÇERÇEVEYİ KONTROL ET ---
+      var framesFromParam = user.ownedFrames || [];
+      var framesFromGlobal = (window.APP_STATE && window.APP_STATE.user && window.APP_STATE.user.ownedFrames) || [];
+      var mergedFrames = [...new Set([...framesFromParam, ...framesFromGlobal])];
 
-      var menuHtml = `
-<div class="mdm-menu-grid" style="margin-top:25px; margin-bottom:25px;">
-<div class="mdm-menu-card" style="${menuStyle}" onclick="ModumApp.openMyCouponsModal()">
-<div class="mdm-menu-icon" style="${iconStyle}"><i class="fas fa-tags"></i></div>
-<div class="mdm-menu-info"><div>Kuponlarım</div><div>İndirim kodları</div></div>
-<i class="fas fa-chevron-right mdm-menu-arrow" style="color:${theme.border}"></i>
+      var currentFrame = user.selectedFrame || "";
+      var frameHtml = currentFrame ? `<div class="mdm-avatar-frame ${currentFrame}" style="top:-10px; left:-10px; right:-10px; bottom:-10px; z-index:2;"></div>` : "";
+
+      // --- 2. SONRA AVATARI ÇİZ (AKILLI KENARLIK) ---
+      var avatarUrl = user.selectedAvatar || "";
+      var avatarDisplay = "";
+      var dbBadges = (typeof BADGES_DB !== 'undefined') ? BADGES_DB : {};
+
+      // 🔥 KİLİT NOKTA: Eğer çerçeve takılıysa kenarlığı (border) SİL, yoksa Rütbe Rengini koy
+      var borderStyle = (currentFrame && currentFrame !== "") ? "border:none !important; box-shadow:none !important;" : `border-color:${currentRank.color}`;
+
+      if (avatarUrl.includes("http")) {
+        avatarDisplay = `<img src="${avatarUrl}" class="mdm-insta-avatar-img" style="${borderStyle}">`;
+      } else if (dbBadges[avatarUrl]) {
+        avatarDisplay = `<div class="mdm-insta-avatar-img" style="display:flex;align-items:center;justify-content:center;font-size:60px;background:#1e293b; ${borderStyle}">${dbBadges[avatarUrl].i}</div>`;
+      } else {
+        avatarDisplay = `<img src="https://www.modum.tr/i/m/001/0013355.png" class="mdm-insta-avatar-img" style="${borderStyle}">`;
+      }
+
+      var framesListHtml = `<div class="mdm-mini-frame-icon" onclick="ModumApp.equipFrame('')" title="Çıkar"><i class="fas fa-ban" style="position:absolute;top:10px;left:12px;color:#ef4444;"></i></div>`;
+      mergedFrames.forEach(function(f) {
+        var isEquipped = currentFrame === f ? "border-color:#4ade80; box-shadow:0 0 10px #4ade80;" : "";
+        framesListHtml += `<div class="mdm-mini-frame-icon ${f}" style="${isEquipped}" onclick="ModumApp.openFrameDetail('${f}')"></div>`;
+      });
+
+      var safeBio = user.bio || "Merhaba! Ben ModumNet üyesiyim. 🛍️";
+
+      // 4. MENU STİLLERİ (Şeffaflaştırıldı çünkü artık renkli kartın içinde)
+      var menuStyle = `border:1px solid rgba(255,255,255,0.1); background:rgba(0, 0, 0, 0.2); box-shadow:0 4px 15px rgba(0,0,0,0.1);`;
+      var iconStyle = `background:rgba(255,255,255,0.1); color:#fff;`;
+
+      var oldMenuHtml = `
+<div class="mdm-menu-grid" style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+<div class="mdm-menu-card" style="${menuStyle}; padding:15px; border-radius:12px; cursor:pointer; display:flex; align-items:center; gap:10px;" onclick="ModumApp.openMyCouponsModal()">
+<div style="${iconStyle}; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-tags"></i></div>
+<div style="font-size:12px; font-weight:bold; color:#fff;">Kuponlarım</div>
   </div>
-<div class="mdm-menu-card" style="${menuStyle}" onclick="ModumApp.openTicketModal()">
-<div class="mdm-menu-icon" style="${iconStyle}"><i class="fas fa-ticket-alt"></i></div>
-<div class="mdm-menu-info"><div>Biletlerim</div><div>Çekiliş kayıtları</div></div>
-<i class="fas fa-chevron-right mdm-menu-arrow" style="color:${theme.border}"></i>
+<div class="mdm-menu-card" style="${menuStyle}; padding:15px; border-radius:12px; cursor:pointer; display:flex; align-items:center; gap:10px;" onclick="ModumApp.openTicketModal()">
+<div style="${iconStyle}; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-ticket-alt"></i></div>
+<div style="font-size:12px; font-weight:bold; color:#fff;">Biletlerim</div>
   </div>
-<div class="mdm-menu-card" style="${menuStyle}" onclick="ModumApp.openHistoryModal()">
-<div class="mdm-menu-icon" style="${iconStyle}"><i class="fas fa-history"></i></div>
-<div class="mdm-menu-info"><div>Geçmiş</div><div>XP hareketleri</div></div>
-<i class="fas fa-chevron-right mdm-menu-arrow" style="color:${theme.border}"></i>
+<div class="mdm-menu-card" style="${menuStyle}; padding:15px; border-radius:12px; cursor:pointer; display:flex; align-items:center; gap:10px;" onclick="ModumApp.openTeamModal()">
+<div style="${iconStyle}; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-users"></i></div>
+<div style="font-size:12px; font-weight:bold; color:#fff;">Ekibim</div>
   </div>
-<div class="mdm-menu-card" style="${menuStyle}" onclick="ModumApp.openTeamModal()">
-<div class="mdm-menu-icon" style="${iconStyle}"><i class="fas fa-users"></i></div>
-<div class="mdm-menu-info"><div>Ekibim</div><div>Referans listesi</div></div>
-<i class="fas fa-chevron-right mdm-menu-arrow" style="color:${theme.border}"></i>
+<div class="mdm-menu-card" style="${menuStyle}; padding:15px; border-radius:12px; cursor:pointer; display:flex; align-items:center; gap:10px;" onclick="ModumApp.openHistoryModal()">
+<div style="${iconStyle}; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-history"></i></div>
+<div style="font-size:12px; font-weight:bold; color:#fff;">Geçmiş</div>
   </div>
   </div>`;
 
-      // ROZETLER
-      var badgeGridHtml =
-          '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; background:rgba(0,0,0,0.2); padding:15px; border-radius:16px;">';
-      Object.keys(BADGES_DB).forEach((key) => {
-        var b = BADGES_DB[key];
-        var hasIt = myBadges.includes(key) || key === "lvl_caylak";
-        var isSelected = selectedBadge === key;
+      // 5. ROZETLER
+      var badgeGridHtml = '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; background:rgba(0,0,0,0.2); padding:15px; border-radius:16px;">';
+      Object.keys(dbBadges).forEach((key) => {
+        var b = dbBadges[key];
+        var hasIt = (user.badges || []).includes(key) || key === "lvl_caylak";
         var opacity = hasIt ? "1" : "0.3";
         var filter = hasIt ? "none" : "grayscale(100%)";
-        var border = isSelected
-        ? "2px solid #fff"
-        : "1px solid rgba(255,255,255,0.1)";
-        badgeGridHtml += `<div onclick="ModumApp.openBadgeDetail('${key}')" style="position:relative; aspect-ratio:1; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; opacity:${opacity}; filter:${filter}; border:${border}; transition:0.2s;">${b.i}</div>`;
+        badgeGridHtml += `<div onclick="ModumApp.openBadgeDetail('${key}')" style="position:relative; aspect-ratio:1; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; opacity:${opacity}; filter:${filter}; transition:0.2s;">${b.i}</div>`;
       });
       badgeGridHtml += "</div>";
 
-      // --- 🔥 ÇERÇEVE KOLEKSİYONU (POP-UP VERSİYON) 🔥 ---
-      var frameCollectionHtml = "";
-
-      if (mergedFrames.length > 0) {
-        // Grid Başlangıcı (Rozetler gibi 4'lü)
-        let framesGrid = '<div class="mdm-collection-grid">';
-
-        // --- 1. ORJİNAL (VARSAYILAN) KARTI ---
-        // Eğer seçili çerçeve boşsa ("") veya yoksa, Orjinal seçili demektir.
-        let isOriginalSelected = currentFrame === "" || !currentFrame;
-        let origBorder = isOriginalSelected
-        ? "#4ade80"
-        : "rgba(255,255,255,0.1)"; // Seçiliyse Yeşil, değilse Gri
-        let origActiveIcon = isOriginalSelected
-        ? '<div style="position:absolute; top:-5px; right:-5px; background:#10b981; border-radius:50%; width:12px; height:12px; border:2px solid #1e293b;"></div>'
-        : "";
-        let origOpacity = isOriginalSelected ? "1" : "0.5"; // Seçili değilse biraz sönük dursun
-
-        framesGrid += `
-<div onclick="ModumApp.equipFrame('')" style="position:relative; aspect-ratio:1; background:rgba(255,255,255,0.05); border-radius:12px; border:2px solid ${origBorder}; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; transition:0.2s; opacity:${origOpacity};">
-<div style="width:40px; height:40px; position:relative; display:flex; align-items:center; justify-content:center;">
-<div style="width:100%; height:100%; background:#334155; border-radius:50%; border:2px solid rgba(255,255,255,0.2);"></div>
-  </div>
-<div style="font-size:9px; margin-top:8px; color:#fff; font-weight:bold;">ORJİNAL</div>
-${origActiveIcon}
-  </div>`;
-
-        // --- 2. DİĞER ÇERÇEVELER ---
-        mergedFrames.forEach((fClass) => {
-          let isEquipped = currentFrame === fClass;
-          let borderColor = isEquipped ? "#4ade80" : "rgba(255,255,255,0.1)";
-          let activeIcon = isEquipped
-          ? '<div style="position:absolute; top:-5px; right:-5px; background:#10b981; border-radius:50%; width:12px; height:12px; border:2px solid #1e293b;"></div>'
-          : "";
-
-          // Veritabanından İsim Bul (Yoksa kod adını yaz)
-          let fData = FRAMES_DB[fClass] || { t: fClass.replace("frame-", "") };
-
-          // İsimleri temizle (frame-gold -> GOLD)
-          let cleanName = fData.t.replace(" Çerçeve", "").toUpperCase();
-
-          // TIKLAYINCA POP-UP AÇ (openFrameDetail)
-          framesGrid += `
-<div onclick="ModumApp.openFrameDetail('${fClass}')" style="position:relative; aspect-ratio:1; background:rgba(255,255,255,0.05); border-radius:12px; border:2px solid ${borderColor}; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;">
-<div style="width:40px; height:40px; position:relative; display:flex; align-items:center; justify-content:center;">
-<div class="mdm-avatar-frame ${fClass}" style="top:-2px; left:-2px; right:-2px; bottom:-2px;"></div>
-<div style="width:100%; height:100%; background:#334155; border-radius:50%;"></div>
-  </div>
-<div style="font-size:9px; margin-top:8px; color:#fff; font-weight:bold;">${cleanName}</div>
-${activeIcon}
-  </div>`;
-        });
-        framesGrid += "</div>";
-
-        frameCollectionHtml = `<div style="margin-top:25px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
-<div style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">ÇERÇEVE KOLEKSİYONU <span style="color:#fff;">(${mergedFrames.length})</span></div>
-${framesGrid}
-  </div>`;
-      } else {
-        frameCollectionHtml = `<div style="margin-top:25px; text-align:center; padding:15px; border:1px dashed rgba(255,255,255,0.1); border-radius:12px;"><div style="color:#94a3b8; font-size:12px;">Henüz hiç çerçeven yok.</div><button onclick="ModumApp.switchTab('store')" style="background:none; border:none; color:${currentRank.color}; font-size:11px; font-weight:bold; cursor:pointer; margin-top:5px;">MAĞAZAYA GİT</button></div>`;
-      }
-
+      // --- HTML ÇIKTISI (BÜYÜK BİRLEŞTİRME) ---
       return `
-<div class="${currentRank.class}" style="padding-top:10px;">
-<div class="mdm-profile-header-card" style="${cardStyle} padding-bottom: 30px;">
+<div class="${currentRank.class}">
 
-<div onclick="ModumApp.openThemeSelector()" style="position:absolute; top:15px; right:15px; background:rgba(0,0,0,0.4); padding:6px 12px; border-radius:20px; display:flex; align-items:center; gap:6px; cursor:pointer; border:1px solid rgba(255,255,255,0.3); z-index:10;">
-<i class="fas fa-palette" style="color:${
-      theme.border
-    }; font-size:12px;"></i><span style="color:#fff; font-size:10px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase;">TEMANI SEÇ</span>
-  </div>
+<div style="${cardStyle}">
 
-<div class="mdm-bg-glow" style="background:${
-      currentRank.color
-    }; top:-50px; left:50%; transform:translateX(-50%);"></div>
+<div class="mdm-insta-card" style="background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important;">                
 
-<div class="mdm-avatar-wrapper">
-${frameHtml}
-<div class="mdm-avatar-circle" style="${avatarBorderStyle} background:${
-      isEmojiAvatar ? "rgba(255,255,255,0.1)" : "#0f172a"
-    }; font-size:${isEmojiAvatar ? "40px" : "32px"};">
+
+<div class="mdm-insta-avatar-area">
+<div style="position:relative;">
 ${avatarDisplay}
+${frameHtml}
   </div>
-<div class="mdm-rank-badge-icon" style="color:${currentRank.color};">${
-      currentRank.icon
-    }</div>
   </div>
 
-<div class="mdm-user-name">${name}</div>
-<div class="mdm-user-email" style="opacity:0.7">${user.email}</div>
-
-<div class="mdm-stats-row">
-<div class="mdm-stat-mini"><div class="mdm-stat-val" style="color:${
-      currentRank.color
-    }">${xp}</div><div class="mdm-stat-lbl">TOPLAM XP</div></div>
-<div class="mdm-stat-mini"><div class="mdm-stat-val">${level}</div><div class="mdm-stat-lbl">RÜTBE</div></div>
-<div class="mdm-stat-mini"><div class="mdm-stat-val" style="color:#f59e0b">${
-      user.katilimSayisi || 0
-    }</div><div class="mdm-stat-lbl">KATILIM</div></div>
+<div class="mdm-insta-info">
+<div class="mdm-insta-username">${name}</div>
+<div class="mdm-profile-actions">
+<button onclick="ModumApp.openEditProfile()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">✏️ Düzenle</button>
+<button onclick="ModumApp.openThemeSelector()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; margin-left:15px;">🎨 Tema</button>
+  </div>
+<div class="mdm-insta-bio">${safeBio}</div>
+<div class="mdm-insta-stats">
+<div class="mdm-stat-item"><span class="mdm-stat-num" style="color:${currentRank.color}">${level}</span><span class="mdm-stat-label">Rütbe</span></div>
+<div class="mdm-stat-item"><span class="mdm-stat-num">${user.gunlukSeri || 0}</span><span class="mdm-stat-label">Seri</span></div>
+<div class="mdm-stat-item"><span class="mdm-stat-num">${(user.badges || []).length}</span><span class="mdm-stat-label">Rozet</span></div>
+  </div>
+<div style="background:rgba(0,0,0,0.3); height:8px; border-radius:10px; width:100%; overflow:hidden; margin-top:5px;">
+<div style="background: ${currentRank.color}; height:100%; width:${progressPercent}%;"></div>
+  </div>
+<div style="font-size:10px; color:rgba(255,255,255,0.6); margin-top:3px; text-align:right;">${nextLevelText}</div>
   </div>
 
-<div class="mdm-xp-container">
-<div class="mdm-xp-bar-bg"><div class="mdm-xp-bar-fill" style="width:${progressPercent}%; background:${
-      currentRank.color
-    }; box-shadow:0 0 15px ${currentRank.color};"></div></div>
-<div class="mdm-xp-text"><span>${xp} XP</span><span>${nextLevelText}</span></div>
+<div class="mdm-insta-frames">
+<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-bottom:5px; writing-mode: vertical-rl; transform: rotate(180deg);">KOLEKSİYON</div>
+${framesListHtml}
+  </div>
   </div>
 
-${menuHtml}
+<div style="height:1px; background:rgba(255,255,255,0.1); margin: 20px 0;"></div>
 
-<div style="text-align:left;">
+${oldMenuHtml}
+
+<div style="margin-top:20px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-<div style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Rozet Koleksiyonu <span style="color:#fff;">(${
-      myBadges.length
-    }/8)</span></div>
-<button onclick="ModumApp.initShareProcess()" style="background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); border:none; color:white; font-size:10px; padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:bold; display:flex; align-items:center; gap:4px;"><i class="fab fa-instagram"></i> Story Paylaş (+50 XP)</button>
+<div style="font-size:11px; color:#fff; font-weight:700; opacity:0.8;">ROZET VİTRİNİ</div>
+<button onclick="ModumApp.initShareProcess()" style="background:linear-gradient(45deg, #f09433, #dc2743); border:none; color:white; font-size:10px; padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:bold;">📸 Story Paylaş</button>
   </div>
 ${badgeGridHtml}
   </div>
 
-${frameCollectionHtml}
-  </div>  
-  </div>
+  </div> </div>
 `;
     }
 
@@ -7981,6 +8076,82 @@ style="background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border
       } catch (e) {
         console.error("Çerçeve kayıt hatası:", e);
         // Hata olursa kullanıcıya söyleyebiliriz, ama görsel bozulmasın diye ellemiyoruz
+      }
+    };
+    // --- 👇 BUNLARI DOSYANIN EN ALTINA YAPIŞTIR 👇 ---
+
+    // 1. Profil Düzenleme Penceresini Aç
+    ModumApp.openEditProfile = function() {
+      var user = APP_STATE.user;
+
+      // Avatar Seçenekleri (En başta tanımladığın AVATAR_LIBRARY)
+      var avatarOptionsHtml = "";
+      if(typeof AVATAR_LIBRARY !== 'undefined') {
+        avatarOptionsHtml = AVATAR_LIBRARY.map(url => 
+                                               `<img src="${url}" onclick="document.getElementById('new-avatar-input').value='${url}'; this.parentElement.querySelectorAll('img').forEach(i=>i.style.border='2px solid transparent'); this.style.border='3px solid #10b981';" 
+style="width:50px; height:50px; border-radius:50%; cursor:pointer; border:2px solid transparent;">`
+                                              ).join("");
+      } else {
+        avatarOptionsHtml = "<div style='color:#ccc; font-size:12px;'>Avatar kütüphanesi yüklenemedi.</div>";
+      }
+
+      var modalHtml = `
+<div id="mdm-edit-modal" class="mdm-modal active" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center;">
+<div class="mdm-modal-content" style="background:#1e293b; width:90%; max-width:400px; padding:20px; border-radius:15px; border:1px solid #334155;">
+<h3 style="color:#fff; margin-bottom:15px; text-align:center;">Profili Düzenle</h3>
+
+<label style="color:#94a3b8; font-size:12px; display:block; margin-bottom:5px;">Biyografi (Hakkında)</label>
+<textarea id="edit-bio-input" style="width:100%; background:#0f172a; border:1px solid #334155; color:#fff; padding:10px; border-radius:8px; margin-bottom:15px; font-family:inherit;" rows="3" placeholder="Kendinden bahset...">${user.bio || ""}</textarea>
+
+<label style="color:#94a3b8; font-size:12px; display:block; margin-bottom:5px;">Avatar Değiştir</label>
+<input type="hidden" id="new-avatar-input" value="${user.selectedAvatar || ''}">
+<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; max-height:150px; overflow-y:auto; padding:5px; background:#0f172a; border-radius:8px;">
+${avatarOptionsHtml}
+  </div>
+
+<button onclick="ModumApp.saveProfile()" style="width:100%; background:#10b981; color:#fff; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; margin-bottom:10px;">KAYDET</button>
+<button onclick="document.getElementById('mdm-edit-modal').remove()" style="width:100%; background:transparent; color:#ef4444; border:1px solid #ef4444; padding:10px; border-radius:8px; cursor:pointer;">İptal</button>
+  </div>
+  </div>
+`;
+
+      // Varsa eskisini sil
+      var old = document.getElementById('mdm-edit-modal');
+      if(old) old.remove();
+
+      document.body.insertAdjacentHTML("beforeend", modalHtml);
+    };
+
+    // 2. Kaydetme Fonksiyonu
+    ModumApp.saveProfile = async function() {
+      var newBio = document.getElementById("edit-bio-input").value;
+      var newAvatar = document.getElementById("new-avatar-input").value;
+
+      // Backend'e Gönder
+      // Not: fetchApi fonksiyonun faprika.js içinde tanımlı olduğunu varsayıyoruz.
+      var res = await fetchApi("update_user_profile", {
+        email: APP_STATE.user.email,
+        newBio: newBio,
+        newAvatar: newAvatar
+      });
+
+      if(res && res.success) {
+        alert("Profil güncellendi! ✅");
+        document.getElementById("mdm-edit-modal").remove();
+
+        // Yerel değişkeni güncelle
+        APP_STATE.user.bio = newBio;
+        if(newAvatar) APP_STATE.user.selectedAvatar = newAvatar;
+
+        // Profili yeniden çiz (Sayfa yenilemeden)
+        if(document.getElementById("mdm-profile-container")) {
+          document.getElementById("mdm-profile-container").innerHTML = renderProfileTab(APP_STATE.user);
+        } else {
+          // Container id farklıysa sayfayı yenile
+          window.location.reload();
+        }
+      } else {
+        alert("Hata: " + (res ? res.message : "Sunucu yanıt vermedi."));
       }
     };
   })(); // Bu satır en altta kalsın
