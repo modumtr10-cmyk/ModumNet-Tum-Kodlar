@@ -371,18 +371,26 @@ margin-top: 0 !important;
       "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix",
       "https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka",
       "https://api.dicebear.com/7.x/adventurer/svg?seed=Molly",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Precious",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=Alexsandra",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=skala",
       "https://api.dicebear.com/7.x/big-ears/svg?seed=Tiger",
-      "https://api.dicebear.com/7.x/micah/svg?seed=Coco",
-      "https://api.dicebear.com/7.x/notionists/svg?seed=Cookie",
-      "https://api.dicebear.com/7.x/open-peeps/svg?seed=Bella",
-      "https://api.dicebear.com/7.x/personas/svg?seed=Trouble",
-      "https://api.dicebear.com/7.x/pixel-art/svg?seed=Midnight",
-      "https://api.dicebear.com/7.x/bottts/svg?seed=Rover",
-      "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Spooky",
-      "https://api.dicebear.com/7.x/lorelei/svg?seed=Ginger",
-      "https://api.dicebear.com/7.x/miniavs/svg?seed=Loki"
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=bella",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=declan",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=maylo",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=ryla",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=roblox",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=profil",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=profil2",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=profil3",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=loki",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=Batman",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=Profil4",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=kedi",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=Profil5",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=profil6",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=Kadın",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=kadın1",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=kadın3"
     ];
     // ======================================================
     // 🔥 GLOBAL ROZET VERİTABANI (TEK MERKEZ)
@@ -1945,7 +1953,7 @@ border-radius: 50%;
 object-fit: cover;
 border: 4px solid #10b981; /* Varsayılan Yeşil Border */
 box-shadow: 0 0 20px rgba(0,0,0,0.3);
-background: #0f172a;
+background: transparent;
 }
 
 /* Orta Taraf: Bilgiler */
@@ -2063,7 +2071,7 @@ scrollbar-width: thin;   /* İnce kaydırma çubuğu */
 .mdm-insta-frames::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
 
 /* Diğer Ayarlar */
-.mdm-insta-avatar-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #10b981; background: #000; }
+.mdm-insta-avatar-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #10b981; background: transparent; }
 .mdm-insta-info { display: flex; flex-direction: column; justify-content: center; }
 .mdm-insta-username { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 .mdm-insta-bio { font-size: 12px; color: #e2e8f0; margin: 10px 0; line-height: 1.4; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
@@ -3412,7 +3420,7 @@ ${
       if (avatarUrl.includes("http")) {
         avatarDisplay = `<img src="${avatarUrl}" class="mdm-insta-avatar-img" style="${borderStyle}">`;
       } else if (dbBadges[avatarUrl]) {
-        avatarDisplay = `<div class="mdm-insta-avatar-img" style="display:flex;align-items:center;justify-content:center;font-size:60px;background:#1e293b; ${borderStyle}">${dbBadges[avatarUrl].i}</div>`;
+        avatarDisplay = `<div class="mdm-insta-avatar-img" style="display:flex;align-items:center;justify-content:center;font-size:60px;background:transparent; ${borderStyle}">${dbBadges[avatarUrl].i}</div>`;
       } else {
         avatarDisplay = `<img src="https://www.modum.tr/i/m/001/0013355.png" class="mdm-insta-avatar-img" style="${borderStyle}">`;
       }
@@ -3479,7 +3487,7 @@ ${frameHtml}
 <div class="mdm-insta-info">
 <div class="mdm-insta-username">${name}</div>
 <div class="mdm-profile-actions">
-<button onclick="ModumApp.openEditProfile()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">✏️ Düzenle</button>
+<button onclick="ModumApp.openEditProfile()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">✏️Profili Düzenle</button>
 <button onclick="ModumApp.openThemeSelector()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; margin-left:15px;">🎨 Tema</button>
   </div>
 <div class="mdm-insta-bio">${safeBio}</div>
@@ -3495,7 +3503,7 @@ ${frameHtml}
   </div>
 
 <div class="mdm-insta-frames">
-<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-bottom:5px; writing-mode: vertical-rl; transform: rotate(180deg);">ÇERÇEVE KOLEKSİYONU</div>
+<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-bottom:5px; writing-mode: vertical-rl; transform: rotate(180deg);">Çerçeve KOLEKSİYON</div>
 ${framesListHtml}
   </div>
   </div>
