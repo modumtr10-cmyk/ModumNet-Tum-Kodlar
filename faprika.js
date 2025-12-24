@@ -2062,7 +2062,6 @@ padding-left: 10px;
 /* 🔥 KAYDIRMA ÖZELLİĞİ BURADA 🔥 */
 max-height: 250px;       /* Yükseklik sınırı */
 overflow-y: auto;        /* Dikey kaydırma */
-scrollbar-width: thin;   /* İnce kaydırma çubuğu */
 }
 
 /* Kaydırma Çubuğu Güzelleştirme */
@@ -2119,6 +2118,40 @@ margin-left: 0px;            /* Soldan boşluk */
 /* Alternatif: Sağa yaslamak istersen 'flex-start' yerine 'flex-end' yaz */
 /* Alternatif 2: Eğer butonları büyütmek istersen: transform: scale(1.1); */
 }
+}
+/* --- 📇 DİJİTAL KARTVİZİT (FLIP CARD) EFEKTLERİ --- */
+.mdm-flip-scene {
+perspective: 1000px; /* 3D derinlik hissi */
+}
+.mdm-flip-wrapper {
+transition: transform 0.8s;
+transform-style: preserve-3d;
+position: relative;
+}
+.mdm-flip-wrapper.is-flipped {
+transform: rotateY(180deg);
+}
+/* Ön ve Arka Yüzün Ortak Özellikleri */
+.mdm-flip-face-front, .mdm-flip-face-back {
+backface-visibility: hidden; /* Arkası dönükken gizle */
+-webkit-backface-visibility: hidden;
+}
+/* Ön Yüz (Mevcut Profil) */
+.mdm-flip-face-front {
+z-index: 2;
+transform: rotateY(0deg);
+}
+/* Arka Yüz (QR Kod) - Başlangıçta gizli ve ters */
+.mdm-flip-face-back {
+position: absolute;
+top: 0; left: 0; width: 100%; height: 100%;
+transform: rotateY(180deg);
+border-radius: 20px;
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+background: #0f172a; /* Arka plan rengi */
+border: 1px solid rgba(255,255,255,0.1);
+box-shadow: 0 0 20px rgba(0,0,0,0.5);
+z-index: 1;
 }
 `;
 
@@ -3469,13 +3502,23 @@ ${
       badgeGridHtml += "</div>";
 
       // --- HTML ÇIKTISI (BÜYÜK BİRLEŞTİRME) ---
+      // 1. QR Kod Linki Hazırla
+      // 1. QR Kod Linki Hazırla
+      var refCode = user.referansKodu || user.uid || "MODUM";
+      var refLink = window.location.origin + "/kullanici-giris?ref=" + refCode;
+      // QR rengini temaya göre ayarlamak istersen color parametresini değiştirebilirsin, şimdilik beyaz kalsın.
+      var qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(refLink)}&color=000000&bgcolor=transparent`;
+
+      // --- HTML ÇIKTISI (GÜNCELLENMİŞ v2) ---
       return `
 <div class="${currentRank.class}">
 
-<div style="${cardStyle}">
+<div class="mdm-flip-scene">
+<div id="mdm-profile-flipper" class="mdm-flip-wrapper">
+
+<div class="mdm-flip-face-front" style="${cardStyle} min-height: 350px;"> 
 
 <div class="mdm-insta-card" style="background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important;">                
-
 
 <div class="mdm-insta-avatar-area">
 <div style="position:relative;">
@@ -3486,10 +3529,13 @@ ${frameHtml}
 
 <div class="mdm-insta-info">
 <div class="mdm-insta-username">${name}</div>
+
 <div class="mdm-profile-actions">
 <button onclick="ModumApp.openEditProfile()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">✏️Profili Düzenle</button>
-<button onclick="ModumApp.openThemeSelector()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; margin-left:15px;">🎨 Tema</button>
+<button onclick="ModumApp.openThemeSelector()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; margin-left:10px;">🎨 Tema</button>
+<button onclick="document.getElementById('mdm-profile-flipper').classList.add('is-flipped')" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; margin-left:10px;">📇 Kartvizit</button>
   </div>
+
 <div class="mdm-insta-bio">${safeBio}</div>
 <div class="mdm-insta-stats">
 <div class="mdm-stat-item"><span class="mdm-stat-num" style="color:${currentRank.color}">${level}</span><span class="mdm-stat-label">Rütbe</span></div>
@@ -3503,15 +3549,13 @@ ${frameHtml}
   </div>
 
 <div class="mdm-insta-frames">
-<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-bottom:5px; writing-mode: vertical-rl; transform: rotate(180deg);">Çerçeve KOLEKSİYON</div>
+<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-bottom:5px; writing-mode: vertical-rl; transform: rotate(180deg);">Çerçeve Koleksiyonu</div>
 ${framesListHtml}
   </div>
   </div>
 
 <div style="height:1px; background:rgba(255,255,255,0.1); margin: 20px 0;"></div>
-
 ${oldMenuHtml}
-
 <div style="margin-top:20px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
 <div style="font-size:11px; color:#fff; font-weight:700; opacity:0.8;">ROZET VİTRİNİ</div>
@@ -3520,7 +3564,33 @@ ${oldMenuHtml}
 ${badgeGridHtml}
   </div>
 
-  </div> </div>
+  </div> 
+<div class="mdm-flip-face-back" style="${cardStyle} position: absolute !important; top: 0; left: 0; margin: 0; z-index:1;">
+<div style="text-align:center; padding:20px; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+
+<div style="margin-bottom:20px;">
+<div style="font-size:18px; font-weight:bold; color:#fff; margin-bottom:5px;">${name}</div>
+<div style="color:${currentRank.color}; font-size:12px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">${level} Üye</div>
+  </div>
+
+<div style="background:#fff; padding:15px; border-radius:15px; display:inline-block; margin-bottom:25px; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+<img src="${qrApiUrl}" style="width:160px; height:160px; display:block;">
+  </div>
+
+<div style="color:rgba(255,255,255,0.8); font-size:13px; margin-bottom:30px; line-height:1.5;">
+Beni tarat, Arkadaşlarını Davet Et! anında<br>
+<b style="color:#4ade80; font-size:16px;">150 XP KAZAN!</b> 🚀
+  </div>
+
+<button onclick="document.getElementById('mdm-profile-flipper').classList.remove('is-flipped')" 
+style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:10px 40px; border-radius:50px; cursor:pointer; font-weight:bold; transition:0.2s; display:flex; align-items:center; gap:8px;">
+<i class="fas fa-undo"></i> Profili Çevir
+  </button>
+  </div>
+  </div>
+  </div>
+  </div> 
+  </div>
 `;
     }
 
