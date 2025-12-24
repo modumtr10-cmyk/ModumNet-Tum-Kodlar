@@ -3578,8 +3578,8 @@ ${badgeGridHtml}
   </div>
 
 <div style="color:rgba(255,255,255,0.8); font-size:13px; margin-bottom:30px; line-height:1.5;">
-Beni tarat, Arkadaşlarını Davet Et! anında<br>
-<b style="color:#4ade80; font-size:16px;">150 XP KAZAN!</b> 🚀
+QR kodunu arkadaşına tarat davet tamamlanınca anında<br>
+<b style="color:#4ade80; font-size:16px;">150 XP senin olsun!</b> 🚀
   </div>
 
 <button onclick="document.getElementById('mdm-profile-flipper').classList.remove('is-flipped')" 
