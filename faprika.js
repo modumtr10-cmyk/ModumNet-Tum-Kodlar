@@ -3537,10 +3537,26 @@ ${frameHtml}
   </div>
 
 <div class="mdm-insta-bio">${safeBio}</div>
-<div class="mdm-insta-stats">
-<div class="mdm-stat-item"><span class="mdm-stat-num" style="color:${currentRank.color}">${level}</span><span class="mdm-stat-label">Rütbe</span></div>
-<div class="mdm-stat-item"><span class="mdm-stat-num">${user.gunlukSeri || 0}</span><span class="mdm-stat-label">Seri</span></div>
-<div class="mdm-stat-item"><span class="mdm-stat-num">${(user.badges || []).length}</span><span class="mdm-stat-label">Rozet</span></div>
+<div class="mdm-insta-stats" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:20px; width:100%;">
+
+<div style="background:rgba(255,255,255,0.05); padding:10px 5px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); text-align:center; display:flex; flex-direction:column; justify-content:center;">
+<div style="font-size:16px; margin-bottom:2px;">${currentRank.icon}</div>
+<div style="font-weight:800; color:${currentRank.color}; font-size:13px;">${level}</div>
+<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-top:2px; text-transform:uppercase;">RÜTBE</div>
+  </div>
+
+<div style="background:rgba(255,255,255,0.05); padding:10px 5px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); text-align:center; display:flex; flex-direction:column; justify-content:center;">
+<div style="font-size:16px; margin-bottom:2px;">🎟️</div>
+<div style="font-weight:800; color:#fff; font-size:13px;">${user.katilimSayisi || 0}</div>
+<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-top:2px; text-transform:uppercase;">KATILIM</div>
+  </div>
+
+<div style="background:rgba(255,255,255,0.05); padding:10px 5px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); text-align:center; display:flex; flex-direction:column; justify-content:center;">
+<div style="font-size:16px; margin-bottom:2px;">🏅</div>
+<div style="font-weight:800; color:#fff; font-size:13px;">${(user.badges || []).length}</div>
+<div style="font-size:9px; color:rgba(255,255,255,0.5); margin-top:2px; text-transform:uppercase;">ROZET</div>
+  </div>
+
   </div>
 <div style="background:rgba(0,0,0,0.3); height:8px; border-radius:10px; width:100%; overflow:hidden; margin-top:5px;">
 <div style="background: ${currentRank.color}; height:100%; width:${progressPercent}%;"></div>
