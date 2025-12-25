@@ -6969,37 +6969,63 @@ ${listHtml}
         d.innerHTML = html;
         document.body.appendChild(d);
       },
-      verifyGoogleTask: function(taskId) {
-        var btn = document.getElementById("btn-verify-" + taskId);
-        if(btn) {
-          var orjText = btn.innerText;
-          btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Kontrol Ediliyor...';
-          btn.style.background = "#64748b"; // Gri yap
-          btn.disabled = true;
+      // --- 🌍 GOOGLE GÖREVİ DOĞRULAMA (ModumApp İÇİNE UYUMLU VERSİYON) ---
+      verifyGoogleTask: function(taskId, link) {
+        // 1. Güvenlik
+        if (!APP_STATE.user || !APP_STATE.user.email) {
+          return alert("Puan kazanmak için önce giriş yapmalısın! 🔒");
         }
 
-        // 5 Saniye Beklet (Gerçekçi olsun)
+        // 2. Linki Aç
+        if(link && link !== 'undefined') window.open(link, '_blank');
+
+        // 3. Butonu Bul (Otomatik Algılama)
+        var btn = window.event ? window.event.target : null;
+        if(btn && (btn.tagName === "I" || btn.tagName === "SPAN")) {
+          btn = btn.closest("button");
+        }
+
+        var originalText = "";
+        if(btn) {
+          originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Kontrol...';
+          btn.disabled = true;
+          btn.style.opacity = "0.7";
+        }
+
+        // 4. Bekle ve Onayla
         setTimeout(function() {
-          fetchApi("complete_task_step", {
+          fetchApi("complete_task_step", { 
             email: APP_STATE.user.email,
             taskId: taskId,
-            step: 2 // 2. Adım (Onay Adımı)
+            step: 1 // Adım 1 Onayı
           }).then(res => {
-            if(res && res.success) {
-              alert("✅ Teşekkürler! Ödül hesabına eklendi.");
-              if(window.loadTasksData) window.loadTasksData(); 
+            if (res && res.success) {
+              alert("🎉 TEBRİKLER! Görev onaylandı.");
+              if(btn) {
+                btn.innerHTML = "✅ TAMAMLANDI";
+                btn.style.background = "#10b981";
+              }
+              var outerBtn = document.querySelector("#task-card-" + taskId + " .mdm-btn-toggle");
+              if(outerBtn) {
+                outerBtn.innerText = "Tamamlandı ✅";
+                outerBtn.style.background = "#10b981"; // Onu da Yeşil yap
+                // Butonun hafızasını da güncelle ki kapanıp açılınca bozulmasın
+                outerBtn.setAttribute("data-original-text", "Tamamlandı ✅");
+              }
+              if(window.loadTasksData) window.loadTasksData();
               if(window.updateDataInBackground) window.updateDataInBackground();
             } else {
-              alert("⚠️ " + (res.message || "Hata oluştu."));
+              alert("⚠️ " + (res ? res.message : "Hata oluştu."));
               if(btn) {
-                btn.innerHTML = orjText;
+                btn.innerHTML = originalText;
                 btn.disabled = false;
-                btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                btn.style.opacity = "1";
               }
             }
           });
-        }, 5000);
-      },
+        }, 5000); 
+      }, // <-- BU VİRGÜL ÇOK ÖNEMLİ! YOKSA SİSTEM ÇÖKER.
       // --- 🗳️ ANKET LİSTESİ MODALI (YENİ) ---
       openSurveyModal: function () {
         if (!APP_STATE.user || !APP_STATE.user.email) return ModumApp.showGuestPopup("daily");
@@ -7292,8 +7318,11 @@ style="width:100%; background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:w
 
             // C. Google Görevi 1. Adım (Sadece Linke Gitme)
             else if (t.id === "gorev_google_maps") {
-              var gLink = t.adim1_link || "https://maps.app.goo.gl/EPzeQfe28jDQsQYF6";
-              actionHtml1 = `<button onclick="window.open('${gLink}', '_blank')" style="width:100%; background:#3b82f6; color:white; border:none; padding:8px; border-radius:6px; margin-top:5px; cursor:pointer; font-weight:bold;">Haritalara Git 🗺️</button>`;
+              var gLink = t.adim1_link || "https://maps.app.goo.gl/E2ZY9EjNxB8jVDhn7"; 
+              // DİKKAT: Artık fonksiyon 'this' parametresini kullanmıyor, event üzerinden yakalıyor.
+              // Parametre sırası: (ID, LINK)
+              actionHtml1 = `<button onclick="ModumApp.verifyGoogleTask('${t.id}', '${gLink}')" style="width:100%; background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; padding:10px; border-radius:8px; margin-top:5px; cursor:pointer; font-weight:bold;">Haritalara Git & Puanı Kap 🗺️</button>
+<div style="font-size:10px; color:#94a3b8; text-align:center; margin-top:5px;">*Bizi Değerlendir⭐⭐⭐⭐⭐</div>`;
             }
             else if (
               t.id === "alisveris_guru_v1" ||
