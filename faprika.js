@@ -7026,6 +7026,57 @@ ${listHtml}
           });
         }, 5000); 
       }, // <-- BU VİRGÜL ÇOK ÖNEMLİ! YOKSA SİSTEM ÇÖKER.
+      // --- 🖼️ ÇERÇEVE GÖREVİ DOĞRULAMA (AKILLI KONTROL) ---
+      verifyFrameTask: function(taskId) {
+        // 1. Güvenlik
+        if (!APP_STATE.user || !APP_STATE.user.email) {
+          return alert("Lütfen önce giriş yapın.");
+        }
+
+        // 2. Çerçeve Var mı Kontrolü (Veritabanından gelen veri)
+        var frames = APP_STATE.user.ownedFrames || [];
+        // Listede eleman var mı? (Varsayılan boşluk hariç)
+        var hasFrame = frames.length > 0; 
+
+        if (hasFrame) {
+          // --- A. ÇERÇEVE VARSA: GÖREVİ TAMAMLA ---
+          var btn = window.event ? window.event.target : null;
+          if(btn) { 
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Onaylanıyor...'; 
+            btn.disabled = true; 
+          }
+
+          // Backend'e "Bu iş tamam" sinyali gönder
+          fetchApi("complete_task_step", { 
+            email: APP_STATE.user.email,
+            taskId: taskId,
+            step: 1 // 1. Adımı (Satın Almayı) Tamamla
+          }).then(res => {
+            if (res && res.success) {
+              alert("🎉 TEBRİKLER! Profil Mimarı görevi onaylandı.");
+
+              // Butonu Yeşil Yap
+              if(btn) {
+                btn.innerHTML = "✅ TAMAMLANDI";
+                btn.style.background = "#10b981";
+              }
+
+              // Ekranı Yenile
+              if(window.loadTasksData) window.loadTasksData();
+              if(window.updateDataInBackground) updateDataInBackground();
+            } else {
+              alert("⚠️ " + (res ? res.message : "Hata oluştu."));
+              if(btn) { btn.innerHTML = "Tekrar Dene"; btn.disabled = false; }
+            }
+          });
+
+        } else {
+          // --- B. ÇERÇEVE YOKSA: MAĞAZAYA YÖNLENDİR ---
+          if(confirm("Henüz satın alınmış bir çerçeven yok. 🛍️\n\nMağazaya gidip en havalı çerçeveyi seçmek ister misin?")) {
+            ModumApp.switchTab('store');
+          }
+        }
+      },
       // --- 🗳️ ANKET LİSTESİ MODALI (YENİ) ---
       openSurveyModal: function () {
         if (!APP_STATE.user || !APP_STATE.user.email) return ModumApp.showGuestPopup("daily");
@@ -7305,14 +7356,13 @@ ${opt}
 
             if (isDone1) {
               actionHtml1 = `<div style="margin-top:5px; padding:8px; background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.3); border-radius:6px; color:#34d399; font-size:11px; font-weight:bold; text-align:center;">✅ TAMAMLANDI</div>`;
-            } // B. Profil Mimarı (ÖZEL BUTON BURAYA GELMELİ ÇÜNKÜ TEK ADIM)
+            } // B. Profil Mimarı (AKILLI KONTROL VERSİYONU)
             else if (t.id === "gorev_profil_mimari" || (t.customId && t.customId === "gorev_profil_mimari")) {
               actionHtml1 = `
-<button onclick="ModumApp.switchTab('store')" 
-style="width:100%; background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding:10px; border-radius:8px; margin-top:5px; cursor:pointer; font-weight:bold; box-shadow:0 4px 10px rgba(139, 92, 246, 0.3);">
-<i class="fas fa-shopping-bag"></i> Mağazaya Git & Çerçeve Al
+<button onclick="ModumApp.verifyFrameTask('${t.id}')" style="width:100%; background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding:10px; border-radius:8px; margin-top:5px; cursor:pointer; font-weight:bold; box-shadow:0 4px 10px rgba(139, 92, 246, 0.3);">
+<i class="fas fa-magic"></i> Kontrol Et & Puanı Al
   </button>
-<div style="font-size:10px; color:#94a3b8; text-align:center; margin-top:5px;">*Profilinden çerçeve değiştirdiğinde otomatik tamamlanır.</div>
+<div style="font-size:10px; color:#94a3b8; text-align:center; margin-top:5px;">*Çerçeven varsa butona bas, sistem onaylasın.</div>
 `;
             }
 
