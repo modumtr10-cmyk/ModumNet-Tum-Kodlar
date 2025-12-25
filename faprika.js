@@ -1726,6 +1726,11 @@ animation: glitchAnim 0.2s infinite;
 border: 3px solid transparent;
 background: linear-gradient(#0f172a, #0f172a) padding-box,
 linear-gradient(45deg, #6366f1, #d946ef, #ec4899) border-box;
+-webkit-mask: 
+     linear-gradient(#fff 0 0) padding-box, 
+     linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
 box-shadow: 0 0 15px #6366f1;
 }
 
