@@ -553,6 +553,14 @@ margin-top: 0 !important;
         t: "Buzul (Ice) Çerçeve",
         d: "Serin ve karizmatik bir duruş.",
       },
+      "frame-robotic": {
+        t: "Mekanik (Robotic) Çerçeve",
+        d: "Geleceğin teknolojisi profilinde hayat buluyor.",
+      },
+      "frame-angel": {
+        t: "Melek (Angel) Çerçeve",
+        d: "Saflığın ve asaletin kutsal ışığı.",
+      },
     };
 
     // ======================================================
@@ -1727,10 +1735,10 @@ border: 3px solid transparent;
 background: linear-gradient(#0f172a, #0f172a) padding-box,
 linear-gradient(45deg, #6366f1, #d946ef, #ec4899) border-box;
 -webkit-mask: 
-     linear-gradient(#fff 0 0) padding-box, 
-     linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+linear-gradient(#fff 0 0) padding-box, 
+linear-gradient(#fff 0 0);
+-webkit-mask-composite: xor;
+mask-composite: exclude;
 box-shadow: 0 0 15px #6366f1;
 }
 
@@ -1757,6 +1765,30 @@ animation: spinRainbow 2s linear infinite;
 border: 3px solid #1e293b;
 box-shadow: 0 0 15px #000;
 filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
+}
+/* 11. ROBOTIC (Mekanik Teknoloji) 🤖 */
+.frame-robotic {
+border: 3px dashed #00d4ff; /* Kesik çizgili lazer mavisi */
+box-shadow: 0 0 10px #00d4ff, inset 0 0 10px rgba(0, 212, 255, 0.3);
+background: transparent; /* İçi boş */
+border-radius: 50%;
+animation: spinSlow 10s linear infinite; /* Sürekli döner */
+}
+
+/* 12. ANGEL (Kutsal Işık) 👼 */
+.frame-angel {
+border: 4px double #fff; /* Çift katmanlı beyaz çizgi */
+box-shadow: 0 0 15px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.5); /* Altın hare */
+background: transparent; /* İçi boş */
+border-radius: 50%;
+animation: angelPulse 3s infinite ease-in-out, spinSlow 10s linear infinite; /* Hem nefes alır hem döner */
+}
+
+/* Angel için özel nefes alma efekti */
+@keyframes angelPulse {
+0% { box-shadow: 0 0 15px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.5); transform: scale(1); }
+50% { box-shadow: 0 0 25px #fbbf24, 0 0 50px rgba(251, 191, 36, 0.8); transform: scale(1.02); }
+100% { box-shadow: 0 0 15px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.5); transform: scale(1); }
 }
 
 /* DÖNME EFEKTLERİ İÇİN */
