@@ -4164,32 +4164,6 @@ exports.api = onRequest(
           response = { success: true, list: list };
         }
 
-        // 3. 🏆 GİZLİ LİDERLER TABLOSU (Faprika Vitrini İçin)
-        else if (islem === "get_masked_leaderboard") {
-          const snapshot = await db
-            .collection("users")
-            .orderBy("puan", "desc")
-            .limit(5)
-            .get();
-          const list = [];
-          snapshot.forEach((doc) => {
-            const d = doc.data();
-            let nameDisplay = "Gizli Üye";
-            if (d.adSoyad && d.adSoyad !== "Misafir") {
-              // "Ahmet Yılmaz" -> "Ahmet Y."
-              const parts = d.adSoyad.split(" ");
-              nameDisplay =
-                parts[0] + " " + (parts.length > 1 ? parts[1][0] + "." : "");
-            } else {
-              // "ahmet@gmail.com" -> "ahm***"
-              nameDisplay = d.email.split("@")[0].substring(0, 3) + "***";
-            }
-
-            list.push({ name: nameDisplay, points: d.puan, level: d.seviye });
-          });
-          response = { success: true, list: list };
-        }
-
         // 4. 🎫 MÜŞTERİ BİLET CÜZDANI (Biletlerim Sayfası)
         else if (islem === "get_user_tickets") {
           const { email } = data;
@@ -7033,7 +7007,7 @@ async function executeRaffleEngine(raffleId) {
       });
 
       // 🔥 DÜZELTME: Ödülü "Obje" değil "Yazı" olarak kaydet (Admin Paneli Bozulmasın diye)
-      finalPrizeText = `${targetAmount} TL Çek (Kod: ${assignedCoupon.code})`;
+      finalPrizeText = `${targetAmount} TL Çek`;
     }
 
     // B. Kazananı Kaydet
@@ -7874,9 +7848,9 @@ exports.manualXMLUpdate = require("firebase-functions/v2/https").onRequest(
 exports.updateProductPoolFromXML =
   require("firebase-functions/v2/scheduler").onSchedule(
     {
-      schedule: "0 * * * *", // Her saat başı çalışır (Stokları güncel tutar)
+      schedule: "0 4 * * 1", // ✅ Sadece Pazartesi sabah 04:00'te çalışır (Tasarruflu)
       timeZone: "Europe/Istanbul",
-      timeoutSeconds: 540, // 9 Dakika süre tanı (XML büyük olabilir)
+      timeoutSeconds: 540,
       memory: "1GiB",
     },
     async (event) => {
