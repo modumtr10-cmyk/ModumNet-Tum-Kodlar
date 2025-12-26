@@ -1503,6 +1503,16 @@
                 </thead>
                 <tbody></tbody>
               </table>
+              <div style="text-align: center; margin-top: 15px">
+                <button
+                  id="btnLoadMoreRaffles"
+                  class="btn btn-outline btn-sm"
+                  onclick="loadRaffles(true)"
+                  style="display: none"
+                >
+                  ⬇️ Daha Fazla Yükle
+                </button>
+              </div>
             </div>
           </div>
 
@@ -3320,24 +3330,26 @@
               }
 
               tbody.innerHTML += `<tr>
-                <td><b>${u.adSoyad || "-"}</b></td>
-                <td>${u.email}</td>
-                <td><span class="badge ${lvlBadge}">${
+  <td><b>${escapeHtml(u.adSoyad || "-")}</b></td>
+  <td>${escapeHtml(u.email)}</td>
+  
+  <td><span class="badge ${lvlBadge}">${escapeHtml(
                 u.seviye || "Çaylak"
-              }</span> <small>(${u.puan} XP)</small></td>              
-                <td><span class="badge badge-info">${
-                  u.siparisSayisi || 0
-                } Adet</span></td>
-                <td><span class="badge badge-warning">${hak} Hak</span> / ${katilim}</td>
-                <td>${sonGiris} / <b style="color:red">${seriNo}</b></td>
-                <td>${u.davetSayisi || 0}</td>
-                <td>${dogumGunuGosterim} ${odulRozeti}</td>
-                <td style="display:flex; gap:5px;">
-                  <button class="btn btn-outline btn-sm" onclick="openGivePointModal('${
-                    u.email
-                  }')" title="Düzenle"><i class="fas fa-edit"></i></button>
-                </td>
-              </tr>`;
+              )}</span> <small>(${u.puan} XP)</small></td>              
+  <td><span class="badge badge-info">${u.siparisSayisi || 0} Adet</span></td>
+  <td><span class="badge badge-warning">${hak} Hak</span> / ${katilim}</td>
+  <td>${sonGiris} / <b style="color:red">${seriNo}</b></td>
+  <td>${u.davetSayisi || 0}</td>
+  <td>${dogumGunuGosterim} ${odulRozeti}</td>
+  
+  <td style="display:flex; gap:5px;">
+    <button class="btn btn-outline btn-sm" onclick="openGivePointModal('${escapeHtml(
+      u.email
+    )}')" title="Düzenle">
+      <i class="fas fa-edit"></i>
+    </button>
+  </td>
+</tr>`;
             });
 
             // İmleci güncelle
@@ -3859,12 +3871,18 @@
                 badgeClass = "badge-warning"; // Sarı
 
               tbody.innerHTML += `
-                <tr>
-                    <td style="white-space:nowrap; font-size:0.85rem; font-family:monospace; color:#334155;"><b>${log.createdAt}</b></td>
-                    <td><span class="badge ${badgeClass}">${log.action}</span></td>
-                    <td style="font-size:0.9rem; color:#475569;">${log.details}</td>
-                    <td style="font-family:monospace; font-size:0.8rem; color:#64748b;">${log.ip}</td>
-                </tr>`;
+<tr>
+    <td style="white-space:nowrap; font-size:0.85rem; font-family:monospace; color:#334155;"><b>${
+      log.createdAt
+    }</b></td>
+    
+    <td><span class="badge ${badgeClass}">${escapeHtml(log.action)}</span></td>
+    
+    <td style="font-size:0.9rem; color:#475569;">${escapeHtml(log.details)}</td>
+    <td style="font-family:monospace; font-size:0.8rem; color:#64748b;">${escapeHtml(
+      log.ip
+    )}</td>
+</tr>`;
             });
           } else {
             tbody.innerHTML =
@@ -4236,19 +4254,28 @@
           body: JSON.stringify({ islem: "toggle_task_status", id: id }),
         });
         loadTasks(); // Tabloyu yenile
-      } // --- #2 ÇEKİLİŞ YÖNETİMİ (SİLME BUTONLU VERSİYON) ---
-      async function loadRaffles() {
+      }
+      let lastRaffleCursor = null;
+      // --- #2 ÇEKİLİŞ YÖNETİMİ (SİLME BUTONLU VERSİYON) ---
+      async function loadRaffles(isLoadMore = false) {
         const tbody = document.querySelector("#table-raffles tbody");
         if (!tbody) return;
 
-        tbody.innerHTML =
-          '<tr><td colspan="6"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</td></tr>';
+        if (!isLoadMore) {
+          lastRaffleCursor = null; // İmleci sıfırla
+          tbody.innerHTML =
+            '<tr><td colspan="6" style="text-align:center;">Yükleniyor...</td></tr>';
+          document.getElementById("btnLoadMoreRaffles").style.display = "none";
+        }
 
         try {
           const res = await fetch(getApiUrl(), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ islem: "get_raffles" }),
+            body: JSON.stringify({
+              islem: "get_raffles",
+              lastId: isLoadMore ? lastRaffleCursor : null, // Kaldığımız yeri gönder
+            }),
           });
           const data = await res.json();
 
@@ -4331,17 +4358,31 @@
               }
 
               tbody.innerHTML += `
-              <tr>
-                <td><b>${ad}</b></td>
-                <td>${bitisStr}</td>
-                <td>${odul}</td>
-                <td>${r.participantCount || 0} / ${
+<tr>
+  <td><b>${escapeHtml(ad)}</b></td>
+  <td>${bitisStr}</td>
+  <td>${escapeHtml(odul)}</td>
+  
+  <td>${r.participantCount || 0} / ${
                 r.winnerCount || r.kazanan_sayisi || 1
               }</td>
-                <td>${statusBadge}</td>
-                <td style="display:flex; gap:5px;">${buttons}</td>
-              </tr>`;
+  <td>${statusBadge}</td>
+  
+  <td style="display:flex; gap:5px;">${buttons.replace(/'/g, "&#039;")}</td> 
+  </tr>`;
             });
+            lastRaffleCursor = data.lastId;
+
+            // Butonu gösterelim mi?
+            const btnMore = document.getElementById("btnLoadMoreRaffles");
+            if (btnMore) {
+              if (data.hasMore) {
+                btnMore.style.display = "inline-block";
+                btnMore.disabled = false;
+              } else {
+                btnMore.style.display = "none";
+              }
+            }
           } else {
             tbody.innerHTML = '<tr><td colspan="6">Veri alınamadı.</td></tr>';
           }
@@ -4628,14 +4669,18 @@
               }
 
               tbody.innerHTML += `<tr>
-                <td>${dateDisplay}</td>
-                <td><b>${w.raffleName}</b></td>
-                <td>${w.userName} <br><small style="color:#aaa">${
-                w.userEmail
-              }</small></td>
-                <td><span class="badge badge-success">${w.prize}</span></td>
-                <td>${w.rank === 1 ? "🥇 1. Asil" : w.rank + ". Asil"}</td>
-              </tr>`;
+  <td>${dateDisplay}</td>
+  
+  <td><b>${escapeHtml(w.raffleName)}</b></td>
+  
+  <td>
+    ${escapeHtml(w.userName)} <br>
+    <small style="color:#aaa">${escapeHtml(w.userEmail)}</small>
+  </td>
+  
+  <td><span class="badge badge-success">${escapeHtml(w.prize)}</span></td>
+  <td>${w.rank === 1 ? "🥇 1. Asil" : w.rank + ". Asil"}</td>
+</tr>`;
             });
           } else {
             tbody.innerHTML =
