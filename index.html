@@ -4925,27 +4925,48 @@
       }
 
       // --- 🔥 SIRALAMAYI KAYDETME FONKSİYONU ---
+      // index.html - <script> etiketleri arasına
+
       async function saveStoreOrder() {
-        const tbody = document.getElementById("store-sortable-list");
-        const rows = tbody.querySelectorAll("tr");
-        const orderedIds = [];
-
-        rows.forEach((row) => {
-          const id = row.getAttribute("data-id");
-          if (id) orderedIds.push(id);
-        });
-
-        if (orderedIds.length === 0) return alert("Listede ürün yok.");
-
         const btn = document.querySelector(
           'button[onclick="saveStoreOrder()"]'
         );
-        const oldText = btn.innerHTML;
-        btn.innerHTML =
-          '<i class="fas fa-spinner fa-spin"></i> Kaydediliyor...';
-        btn.disabled = true;
+        // Eğer buton bulunduysa metnini al, bulunamazsa varsayılan metin ata
+        const originalText = btn ? btn.innerHTML : "Sıralamayı Kaydet";
+
+        if (btn) {
+          btn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Kaydediliyor...';
+          btn.disabled = true;
+        }
 
         try {
+          // 🔥 DÜZELTME BURADA:
+          // loadCouponStore fonksiyonunda verileri "store-sortable-list" içine doldurmuştuk.
+          // Okurken de TAM OLARAK oradan okumalıyız.
+          const rows = document.querySelectorAll("#store-sortable-list tr");
+
+          const orderedIds = [];
+
+          rows.forEach((row) => {
+            const id = row.getAttribute("data-id");
+            // Sadece ID'si olan (dolu) satırları listeye ekle
+            if (id) orderedIds.push(id);
+          });
+
+          console.log("Bulunan Satır Sayısı:", rows.length); // Kontrol için
+          console.log("Gönderilecek ID Listesi:", orderedIds); // Kontrol için
+
+          if (orderedIds.length === 0) {
+            alert("Sıralanacak ürün bulunamadı! (Tablo ID'sini kontrol et)");
+            if (btn) {
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            }
+            return;
+          }
+
+          // 2. Backend'e gönder
           const res = await fetch(getApiUrl(), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -4954,19 +4975,25 @@
               orderedIds: orderedIds,
             }),
           });
+
           const data = await res.json();
 
           if (data.success) {
-            alert("✅ Sıralama başarıyla güncellendi!");
+            alert("✅ " + data.message);
+            // Sıralamanın oturduğunu görmek için tabloyu yenile
+            loadCouponStore();
           } else {
-            alert("❌ Hata: " + data.message);
+            alert("Hata: " + data.message);
           }
         } catch (e) {
-          alert("Bağlantı hatası.");
+          console.error(e);
+          alert("Bağlantı hatası oluştu.");
+        } finally {
+          if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
         }
-
-        btn.innerHTML = oldText;
-        btn.disabled = false;
       }
       // --- TEST SATIŞI (ADMİN KENDİNE ALIR) ---
       async function testBuyItem(id, title) {
