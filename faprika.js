@@ -7962,175 +7962,214 @@ ${btnText}
       }
     }, 10000); // 10 saniyede bir
     /* ======================================================
-   🎬 SİNEMATİK INTRO (RENK + SLOGAN DEĞİŞTİREN FİNAL VERSİYON)
-   ====================================================== */
+       🎬 SİNEMATİK INTRO (FİNAL: PERDE + ORİJİNAL YAZI + MOBİL)
+       ====================================================== */
     (function runCinematicIntro() {
       // 1. SADECE ÇEKİLİŞLER SAYFASINDA ÇALIŞSIN
       if (!window.location.href.includes("cekilisler")) return;
 
-      // 2. ANA İÇERİĞİ GİZLE
+      // 2. SİTE İÇERİĞİNİ GİZLE
       var rootEl = document.getElementById("modum-firebase-test-root");
       if (rootEl) rootEl.style.opacity = "0";
 
-      // 3. TEMA RENGİNİ VE SLOGANINI BELİRLE
+      // 3. AYARLAR
+      var gifUrl = "https://i.hizliresim.com/71gccpr.gif"; // Senin GIF Linkin
+
+      // Tema Rengi
       var savedTheme = localStorage.getItem("mdm_active_theme") || "default";
-
-      // Konfigürasyon: Renkler ve Alt Yazılar
       var themeConfig = {
-        default: {
-          color: "#8b5cf6",
-          glow: "rgba(139, 92, 246, 0.8)",
-          text: "KEYİFLİ ALIŞVERİŞLER",
-        },
-        newyear: {
-          color: "#ef4444",
-          glow: "rgba(239, 68, 68, 0.8)",
-          text: "🎄 YENİ YILINIZ KUTLU OLSUN 🎄",
-        },
-        valentines: {
-          color: "#ec4899",
-          glow: "rgba(236, 72, 153, 0.8)",
-          text: "💖 AŞK DOLU FIRSATLAR 💖",
-        },
-        ramadan: {
-          color: "#fbbf24",
-          glow: "rgba(251, 191, 36, 0.8)",
-          text: "🌙 HAYIRLI RAMAZANLAR 🌙",
-        },
-        summer: {
-          color: "#f97316",
-          glow: "rgba(249, 115, 22, 0.8)",
-          text: "☀️ YAZIN EN SICAK FIRSATLARI ☀️",
-        },
+        default: { color: "#8b5cf6", glow: "rgba(139, 92, 246, 0.8)", text: "KEYİFLİ ALIŞVERİŞLER" },
+        newyear: { color: "#ef4444", glow: "rgba(239, 68, 68, 0.8)", text: "🎄 YENİ YILINIZ KUTLU OLSUN 🎄" }
       };
-
-      // Seçilen ayarı al (Yoksa varsayılanı al)
       var activeStyle = themeConfig[savedTheme] || themeConfig.default;
 
       // 4. CSS STİLLERİ
       var style = document.createElement("style");
       style.innerHTML = `
+/* Ana Kapsayıcı */
 #mdm-intro-overlay {
 position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-background: #0f172a; 
 z-index: 2147483647; 
-display: flex; flex-direction: column; align-items: center; justify-content: center;
 overflow: hidden;
-}
-#mdm-intro-overlay.fade-out {
-animation: slideUpCurtain 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
-}
-.mdm-intro-box {
-position: relative; display: flex; align-items: center; justify-content: center;
-}
-.mdm-intro-m {
-font-family: 'Inter', sans-serif;
-font-weight: 900;
-font-size: 80px;
-color: ${activeStyle.color}; 
-text-shadow: 0 0 30px ${activeStyle.glow};
-opacity: 0;
-transform: translateY(-150px) scale(4);
-animation: dropM 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-.mdm-intro-text {
-font-family: 'Inter', sans-serif;
-font-weight: 800;
-font-size: 80px;
-color: #fff;
-overflow: hidden;
-white-space: nowrap;
-width: 0;
-opacity: 0;
-margin-left: 2px;
-animation: expandText 0.8s ease-out 0.6s forwards;
-}
-.mdm-intro-slogan {
-margin-top: 20px;
-font-family: 'Outfit', sans-serif;
-font-size: 14px;
-letter-spacing: 6px;
-color: #94a3b8;
-text-transform: uppercase;
-opacity: 0;
-transform: translateY(20px);
-animation: fadeUp 0.6s ease-out 0.8s forwards;
-}
-/* 🔥 YENİ EKLENEN ALT SLOGAN STİLİ */
-.mdm-intro-sub {
-margin-top: 5px;
-font-family: 'Outfit', sans-serif;
-font-size: 16px;
-letter-spacing: 2px;
-color: ${activeStyle.color}; /* Tema Rengi */
-font-weight: 800;
-text-transform: uppercase;
-opacity: 0;
-transform: translateY(20px);
-text-shadow: 0 0 10px ${activeStyle.glow};
-animation: fadeUp 0.6s ease-out 1.1s forwards; /* Ana slogandan sonra gelir */
+pointer-events: none;
 }
 
-@keyframes dropM {
-0% { opacity: 0; transform: translateY(-200px) scale(5); filter: blur(20px); }
-100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+/* --- PERDE YAPISI (GIF BURADA) --- */
+.mdm-curtain-panel {
+position: absolute; top: 0; width: 50%; height: 100%;
+overflow: hidden; background: #0f172a;
+transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1);
+z-index: 10;
 }
-@keyframes expandText {
-0% { width: 0; opacity: 0; }
-100% { width: 450px; opacity: 1; }
+.mdm-left-panel { left: 0; border-right: 1px solid rgba(255,255,255,0.1); }
+.mdm-right-panel { right: 0; border-left: 1px solid rgba(255,255,255,0.1); }
+
+/* PERDE AÇILMA HAREKETİ */
+#mdm-intro-overlay.open-curtain .mdm-left-panel { transform: translateX(-100%); }
+#mdm-intro-overlay.open-curtain .mdm-right-panel { transform: translateX(100%); }
+
+/* GIF RESMİ (Tam Ekran ve Ortalanmış) */
+.mdm-bg-gif {
+position: absolute; top: 0; width: 100vw; height: 100vh;
+object-fit: cover; max-width: none !important;
 }
-@keyframes fadeUp {
-to { opacity: 1; transform: translateY(0); }
+.mdm-left-panel .mdm-bg-gif { left: 0; }
+.mdm-right-panel .mdm-bg-gif { left: -50vw; } /* Sağ tarafı tamamlayan parça */
+
+/* --- YAZI KATMANI (ESKİ STİL GERİ GELDİ) --- */
+.mdm-intro-content {
+position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+z-index: 20; /* Perdenin üstünde */
+transition: opacity 0.5s ease;
 }
-@keyframes slideUpCurtain {
-0% { transform: translateY(0); }
-100% { transform: translateY(-100%); border-radius: 0 0 50% 50%; }
+
+/* Yazıların Grubu (Biraz yukarıda) */
+.mdm-intro-content-wrapper {
+display: flex; flex-direction: column; align-items: center;
+transform: translateY(-50px);
+text-align: center;
 }
-@media (max-width: 768px) {
-.mdm-intro-m { font-size: 32px !important; margin-right: 2px !important; }
-.mdm-intro-text { font-size: 32px !important; }
-.mdm-intro-slogan { font-size: 8px !important; letter-spacing: 2px !important; text-align: center !important; width: 100% !important; padding: 0 10px !important; margin-top: 10px !important; }
-.mdm-intro-sub { font-size: 10px !important; letter-spacing: 1px !important; text-align: center !important; }
-@keyframes expandText { 
-0% { width: 0; opacity: 0; }
-100% { width: auto; opacity: 1; max-width: 70vw; }
+
+.mdm-intro-box { display: flex; align-items: center; justify-content: center; }
+
+/* LOGO 'M' HARFİ */
+.mdm-intro-m {
+font-family: 'Inter', sans-serif; font-weight: 900; font-size: 80px;
+color: ${activeStyle.color}; text-shadow: 0 0 30px ${activeStyle.glow};
+opacity: 0; animation: dropM 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
-.mdm-intro-text { animation: expandText 0.8s ease-out 0.6s forwards !important; }
-.mdm-intro-slogan { animation: fadeUp 0.8s ease-out 1.5s forwards !important; }
-.mdm-intro-box { justify-content: center !important; width: 100% !important; }
+
+/* 'ODUMNET' YAZISI */
+.mdm-intro-text {
+font-family: 'Inter', sans-serif; font-weight: 800; font-size: 80px;
+color: #fff; overflow: hidden; white-space: nowrap; width: 0;
+opacity: 0; margin-left: 2px;
+text-shadow: 0 5px 15px rgba(0,0,0,0.8); /* Okunabilirlik için gölge */
+animation: expandText 0.8s ease-out 0.6s forwards;
 }
+
+/* ÜST SLOGAN */
+.mdm-intro-slogan {
+margin-top: 20px; font-family: 'Outfit', sans-serif; font-size: 14px;
+letter-spacing: 6px; color: #cbd5e1; text-transform: uppercase;
+background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 4px; /* Arkasına hafif siyahlık */
+opacity: 0; animation: fadeUp 0.6s ease-out 0.8s forwards;
+}
+
+/* ALT SLOGAN (Dinamik) */
+.mdm-intro-sub {
+margin-top: 10px; font-family: 'Outfit', sans-serif; font-size: 16px;
+letter-spacing: 2px; color: ${activeStyle.color}; font-weight: 800;
+text-transform: uppercase; text-shadow: 0 0 10px ${activeStyle.glow};
+background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px;
+opacity: 0; animation: fadeUp 0.6s ease-out 1.1s forwards;
+}
+
+/* --- ANİMASYONLAR --- */
+@keyframes dropM { 0% { opacity: 0; transform: translateY(-200px) scale(5); filter: blur(20px); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+@keyframes expandText { 0% { width: 0; opacity: 0; } 100% { width: 460px; opacity: 1; } }
+@keyframes fadeUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+/* --- MOBİL UYUMLULUK (HİZALAMA DÜZELTİLDİ) --- */
+        @media (max-width: 768px) {
+            
+            /* 1. YAZIYI YUKARI TAŞIMA */
+            .mdm-intro-content-wrapper { 
+                transform: translateY(-130px) !important; 
+            }
+
+            /* 2. 'M' HARFİ AYARI */
+            .mdm-intro-m { 
+                font-size: 32px !important; 
+                /* Aşırı itmek yerine hafifçe sağa çekiyoruz */
+                margin-right: -2px !important; 
+                margin-left: 0 !important;
+                /* Harfin kendi boşluğunu sıfırla */
+                padding: 0 !important;
+                line-height: 1 !important;
+            }
+            
+            /* 3. 'ODUMNET' YAZISI AYARI */
+            .mdm-intro-text { 
+                font-size: 32px !important; 
+                /* 🔥 KRİTİK NOKTA: Masaüstündeki boşluğu iptal edip, M'ye doğru çektik */
+                margin-left: -2px !important; 
+                padding-left: 0 !important;
+                line-height: 1 !important;
+            }
+            
+            /* Yazı Açılma Animasyonu */
+            @keyframes expandText { 
+                0% { width: 0; opacity: 0; } 
+                100% { width: 190px; opacity: 1; } 
+            }
+            
+            /* Slogan Ayarları */
+            .mdm-intro-slogan { 
+                font-size: 9px !important; letter-spacing: 1px !important; 
+                margin-top: 5px !important; width: 90%; 
+            }
+            .mdm-intro-sub { 
+                font-size: 10px !important; letter-spacing: 1px !important; 
+            }
+
+            /* GIF AYARI (Sabit) */
+            .mdm-bg-gif {
+                object-fit: contain !important; 
+                height: auto !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                background: #0f172a; 
+            }
+        }
 `;
       document.head.appendChild(style);
 
-      // 5. HTML YAPISI (YENİ SLOGAN EKLENDİ)
+      // 5. HTML YAPISI
       var overlay = document.createElement("div");
       overlay.id = "mdm-intro-overlay";
       overlay.innerHTML = `
+<div class="mdm-curtain-panel mdm-left-panel">
+<img src="${gifUrl}" class="mdm-bg-gif">
+  </div>
+
+<div class="mdm-curtain-panel mdm-right-panel">
+<img src="${gifUrl}" class="mdm-bg-gif">
+  </div>
+
+<div class="mdm-intro-content" id="mdm-intro-text-layer">
+<div class="mdm-intro-content-wrapper">
 <div class="mdm-intro-box">
 <div class="mdm-intro-m">M</div>
 <div class="mdm-intro-text">ODUMNET</div>
   </div>
 <div class="mdm-intro-slogan">FIRSAT DÜNYASINA HOŞGELDİNİZ</div>
-<div class="mdm-intro-sub">${activeStyle.text}</div> <!-- 🔥 DİNAMİK YAZI -->
+<div class="mdm-intro-sub">${activeStyle.text}</div>
+  </div>
+  </div>
 `;
       document.body.appendChild(overlay);
 
-      // 6. ZAMANLAYICI
-      // Süreyi biraz uzattık (3 saniye) ki alttaki yazı da okunabilsin
+      // 6. ZAMANLAMA (3.5 Saniye sonra açılır)
       setTimeout(function () {
-        overlay.classList.add("fade-out");
+        // Yazıları nazikçe sil
+        var textLayer = document.getElementById("mdm-intro-text-layer");
+        if(textLayer) textLayer.style.opacity = "0";
 
-        // Perdeyi kaldır, siteyi göster (BUNU EKLEMEN ŞART)
+        // Perdeyi Aç
+        overlay.classList.add("open-curtain");
+
+        // Arkadaki Siteyi Göster
         document.documentElement.classList.remove("intro-active");
-
         if (rootEl) {
-          rootEl.style.transition = "opacity 1s ease-in";
+          rootEl.style.transition = "opacity 1.5s ease-in";
           rootEl.style.opacity = "1";
         }
-        setTimeout(function () {
-          overlay.remove();
-        }, 900);
-      }, 2000); // Intro süresi
+
+        // Temizlik
+        setTimeout(function () { overlay.remove(); }, 1600);
+      }, 1500);
     })();
     // ======================================================
     // 🛡️ GÜVENLİK DUVARI ARAYÜZÜ (SPAM KORUMASI)
