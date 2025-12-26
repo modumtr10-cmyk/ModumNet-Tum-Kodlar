@@ -3120,7 +3120,7 @@ ${renderEarningsInfo()} <h3 style="color:#fff; font-size:16px; margin-top:20px;"
 <h3 style="color:#fff; font-size:16px; margin:0 0 5px 0;">Bizi Değerlendirin</h3>
 <p style="color:#c7d2fe; font-size:12px; margin-bottom:15px;">Düşünceleriniz bizim için değerli. Yorum yap, "Alışveriş Gurusu" görevini tamamla!</p>
 
-<textarea id="eval-message" rows="2" placeholder="Hizmetimizden memnun kaldınız mı?" style="width:100%; padding:10px; border-radius:8px; border:none; background:rgba(255,255,255,0.1); color:#fff; font-size:12px; margin-bottom:10px;"></textarea>
+<textarea id="eval-message" rows="2" placeholder="Hizmetimizden memnun kaldınız mı?" style="width:100%; padding:10px; border-radius:8px; border:none; background:rgb(0 0 0 / 10%); color:#fff; font-size:22px; margin-bottom:10px;"></textarea>
 
 <button onclick="ModumApp.submitEvaluation()" style="background:#fbbf24; color:#78350f; border:none; padding:10px 20px; border-radius:50px; font-weight:bold; font-size:12px; cursor:pointer; box-shadow:0 4px 10px rgba(251, 191, 36, 0.3);">
 GÖNDER VE KAZAN 🚀
