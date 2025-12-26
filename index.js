@@ -3187,7 +3187,6 @@ exports.api = onRequest(
               // 3. PUANI DÜŞ (Cüzdandan Kes)
               let newBalance = currentWallet - cost;
               t.update(userRef, {
-                toplampuan: newBalance,
                 puan: newBalance, // Senkronizasyon
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
               });
@@ -6052,10 +6051,11 @@ exports.api = onRequest(
 
             // 4. Veritabanını Güncelle
             batch.update(userRef, {
-              puan: newScore,
-              toplampuan: newScore, // Puanları eşitle
-              siparisSayisi: newOrderCount, // Yeni sayıyı işle (Örn: 2 olacak)
-              seviye: newLevel, // Eğer şartlar tutuyorsa Şampiyon olacak
+              // Increment: "Mevcut değer neyse onun üzerine ekle" demektir.
+              puan: admin.firestore.FieldValue.increment(earnedXP), // Cüzdana ekle
+              toplampuan: admin.firestore.FieldValue.increment(earnedXP), // Kariyer'e ekle
+
+              siparisSayisi: admin.firestore.FieldValue.increment(1), // Sipariş sayısını 1 artır
               updatedAt: now,
             });
             const guruTaskRef = db
@@ -7233,6 +7233,7 @@ exports.raffleCheckJob = require("firebase-functions/v2/scheduler").onSchedule(
     }
   }
 );
+
 // ==================================================================
 // 🤖 ROBOT 4: GÜNLÜK ALTIN ÜRÜN SIFIRLAYICI (HER GECE 00:00)
 // ==================================================================
