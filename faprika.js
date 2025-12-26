@@ -5672,15 +5672,8 @@ ${emailShow}
         });
       },
 
-      // 7. Gelişmiş Detay Modalı (Kazanma Şansı & Filtreleme FIX)
-      openDetailModal: function (
-      id,
-       title,
-       img,
-       reward,
-       endDate,
-       participantCount
-      ) {
+      // 7. Gelişmiş Detay Modalı (AKILLI BİLET SAYACI & MATCH FIX)
+      openDetailModal: function (id, title, img, reward, endDate, participantCount) {
         ModumApp.logAction("Çekiliş İnceledi", title);
 
         // Eski sayacı temizle
@@ -5696,13 +5689,12 @@ ${emailShow}
         if (safeDateStr.length <= 10) safeDateStr += "T23:59:00";
         var targetTime = new Date(safeDateStr).getTime();
 
-        // Toplam Katılımcı (Sayıya çevir)
-        var totalP = parseInt(participantCount) || 0;
+        // Toplam Katılımcı
+        var totalP = parseInt(participantCount) || 1; // 0 gelirse 1 yap ki bölme hatası olmasın
 
-        // HTML İskeleti (Kazanma Şansı Kutusu Eklendi)
+        // HTML İskeleti
         var html = `
 <div class="mdm-modal-split-layout">
-<!-- SOL TARAF -->
 <div class="mdm-modal-left">
 <img src="${img}" class="mdm-detail-img">
 <div class="mdm-detail-title">${title}</div>
@@ -5714,7 +5706,6 @@ ${emailShow}
 <div class="mdm-stat-lbl">Katılımcı</div>
   </div>
 
-<!-- 🔥 YENİ: KAZANMA ŞANSI KUTUSU -->
 <div class="mdm-stat-box" id="mdm-chance-box">
 <div class="mdm-stat-val" style="color:#fbbf24;">Hesaplanıyor...</div>
 <div class="mdm-stat-lbl">Şansın</div>
@@ -5736,7 +5727,6 @@ HEMEN KATIL <i class="fas fa-ticket-alt"></i>
   </div>
   </div>
 
-<!-- SAĞ TARAF: LİSTE -->
 <div class="mdm-modal-right">
 <div class="mdm-detail-tabs">
 <div class="mdm-dt-tab active">👥 Son Katılanlar</div>
@@ -5769,9 +5759,7 @@ Veriler Analiz Ediliyor...
             clearInterval(globalRaffleTimer);
           } else {
             var d = Math.floor(dist / (1000 * 60 * 60 * 24));
-            var h = Math.floor(
-              (dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-            );
+            var h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             var m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
             timerDiv.innerHTML = `<span style="color:#fbbf24">${d}g</span> ${h}s ${m}d`;
           }
@@ -5783,70 +5771,77 @@ Veriler Analiz Ediliyor...
           if (!listDiv) return;
 
           if (res && res.success && res.list) {
-            // 🔥 FİLTRELEME: Sadece bu çekilişin adını içerenleri al
-            var filtered = res.list.filter((p) => p.raffleName === title);
+            // 🔥 AKILLI FİLTRELEME (İsimlerdeki küçük/büyük harf ve boşluk sorununu çözer)
+            var cleanTitle = title.toLowerCase().trim();
 
-            // Eğer tam eşleşme bulamazsa "içerir" mantığıyla ara
-            if (filtered.length === 0) {
-              filtered = res.list.filter((p) =>
-                                         p.raffleName.includes(title.substring(0, 10))
-                                        );
-            }
+            var filtered = res.list.filter((p) => {
+              var pName = (p.raffleName || "").toLowerCase().trim();
+              return pName === cleanTitle || pName.includes(cleanTitle) || cleanTitle.includes(pName);
+            });
 
             // Kendi bilet sayını bul
             if (APP_STATE.user && APP_STATE.user.email) {
-              var myCount = filtered.filter(
-                (p) => p.email === APP_STATE.user.email
-              ).length;
+              var myEmail = APP_STATE.user.email.toLowerCase();
+              var myCount = filtered.filter((p) => (p.email || "").toLowerCase() === myEmail).length;
 
-              // Şans Hesapla
+              // Eğer hala 0 ise ve kişi "Katıldım" diyorsa, APP_STATE.myRaffles'a da bak
+              if (myCount === 0 && APP_STATE.myRaffles) {
+                var joinedBefore = APP_STATE.myRaffles.some(rName => rName.toLowerCase().trim() === cleanTitle);
+                if(joinedBefore) myCount = 1; // En azından 1 göster
+              }
+
+              // Şans Hesapla (% Oranı)
+              var chanceRate = (myCount / totalP) * 100;
               var chanceText = "Düşük";
               var chanceColor = "#94a3b8"; // Gri
 
               if (myCount > 0) {
-                var ratio = (myCount / Math.max(totalP, 1)) * 100;
-                if (ratio > 5) {
-                  chanceText = "YÜKSEK 🔥";
-                  chanceColor = "#10b981";
-                } else if (ratio > 1) {
+                if (chanceRate > 10) {
+                  chanceText = "ÇOK YÜKSEK 🔥";
+                  chanceColor = "#10b981"; // Yeşil
+                } else if (chanceRate > 5) {
+                  chanceText = "YÜKSEK 🚀";
+                  chanceColor = "#34d399";
+                } else if (chanceRate > 1) {
                   chanceText = "ORTA ⚖️";
-                  chanceColor = "#fbbf24";
+                  chanceColor = "#fbbf24"; // Sarı
                 } else {
                   chanceText = "NORMAL 🤞";
-                  chanceColor = "#60a5fa";
+                  chanceColor = "#60a5fa"; // Mavi
                 }
               } else {
                 chanceText = "Biletin Yok";
               }
 
+              // Kutuyu Güncelle
               var chanceBox = document.getElementById("mdm-chance-box");
               if (chanceBox) {
                 chanceBox.innerHTML = `<div class="mdm-stat-val" style="color:${chanceColor}; font-size:12px;">${chanceText}</div><div class="mdm-stat-lbl">(${myCount} Bilet)</div>`;
               }
             }
 
-            // Listeyi Ekrana Bas (Sadece ilk 20 kişi)
+            // Listeyi Ekrana Bas (Sadece ilk 50 kişi)
             var listHtml = "";
-            filtered.slice(0, 20).forEach((p) => {
+            filtered.slice(0, 50).forEach((p) => {
+              // İsim Gizleme (KVKK) - Örn: Ah*** Yıl***
+              var safeName = p.name; 
+
               listHtml += `
 <div class="mdm-part-item">
 <div class="mdm-part-user">
 <div class="mdm-part-icon">👤</div>
 <div class="mdm-part-info">
-<div class="mdm-part-name">${p.name}</div>
+<div class="mdm-part-name">${safeName}</div>
 <div class="mdm-part-ticket">${p.ticketId}</div>
   </div>
   </div>
-<div class="mdm-part-time">${p.date}</div>
+<div class="mdm-part-time" style="font-size:9px;">${p.date ? p.date.substring(0,10) : ""}</div>
   </div>`;
             });
 
-            listDiv.innerHTML =
-              listHtml ||
-              '<div style="padding:20px; text-align:center;">Henüz katılım yok.</div>';
+            listDiv.innerHTML = listHtml || '<div style="padding:20px; text-align:center;">Henüz katılım yok.</div>';
           } else {
-            listDiv.innerHTML =
-              '<div style="padding:20px; text-align:center;">Veri alınamadı.</div>';
+            listDiv.innerHTML = '<div style="padding:20px; text-align:center;">Veri alınamadı.</div>';
           }
         });
       },
