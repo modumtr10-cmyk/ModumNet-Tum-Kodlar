@@ -2859,23 +2859,45 @@ exports.api = onRequest(
             console.error("Mağaza yükleme hatası:", error);
             response = { success: false, items: [], message: error.message };
           }
-        } // ... index.js içinde uygun bir yere (örneğin "add_store_item" bloğunun altına) ekle ...
+        } // index.js -> "update_store_order" bloğu
         else if (islem === "update_store_order") {
-          const { orderedIds } = data; // ["id1", "id2", "id3"...] şeklinde sıralı ID listesi
+          // 🔒 GÜVENLİK: Şifreyi .env dosyasından çekiyoruz
+          // Eğer .env okunamazsa varsayılan olarak "GIZLI" atanır (ama okunacaktır)
+          const GUVENLIK_ANAHTARI = process.env.ADMIN_SECRET_KEY || "GIZLI";
 
-          if (!orderedIds || !Array.isArray(orderedIds)) {
+          const { orderedIds, admin_key } = data;
+
+          // Şifre Kontrolü
+          // Kullanıcıdan gelen "admin_key" ile .env'deki "ADMIN_SECRET_KEY" aynı mı?
+          if (admin_key !== GUVENLIK_ANAHTARI) {
+            console.warn("⛔ Yetkisiz erişim denemesi!");
+            response = {
+              success: false,
+              message: "⛔ YETKİSİZ ERİŞİM: Güvenlik anahtarı hatalı!",
+            };
+          } else if (!orderedIds || !Array.isArray(orderedIds)) {
             response = { success: false, message: "Geçersiz veri." };
           } else {
-            const batch = db.batch();
+            // ✅ Şifre Doğruysa İşlemi Yap
+            try {
+              const batch = db.batch();
+              orderedIds.forEach((id, index) => {
+                const ref = db.collection("coupon_store").doc(id);
+                batch.update(ref, { order: index });
+              });
 
-            orderedIds.forEach((id, index) => {
-              const ref = db.collection("coupon_store").doc(id);
-              // Sıra numarasını güncelle (0, 1, 2...)
-              batch.update(ref, { order: index });
-            });
-
-            await batch.commit();
-            response = { success: true, message: "Sıralama güncellendi." };
+              await batch.commit();
+              response = {
+                success: true,
+                message: "Sıralama güvenli şekilde güncellendi.",
+              };
+            } catch (err) {
+              console.error("Batch hatası:", err);
+              response = {
+                success: false,
+                message: "Veritabanı hatası: " + err.message,
+              };
+            }
           }
         }
         // --- MAĞAZAYA ÜRÜN EKLE (XP AVCISI VERSİYON - FİNAL) ---
