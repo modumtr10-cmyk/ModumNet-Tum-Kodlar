@@ -1479,25 +1479,6 @@ exports.api = onRequest(
           } else {
             response = { success: false, message: "Görev bulunamadı." };
           }
-        }
-
-        // --- DURUM DEĞİŞTİRME (PASİF/AKTİF BUTONU İÇİN) ---
-        else if (islem === "toggle_task_status") {
-          const docRef = db.collection("tasks").doc(data.id);
-          const doc = await docRef.get();
-          if (doc.exists) {
-            // Mevcut durum neyse tersine çevir
-            const currentStatus = doc.data().status;
-            const newStatus =
-              currentStatus === "active" || currentStatus === "Aktif"
-                ? "passive"
-                : "active";
-
-            await docRef.update({ status: newStatus });
-            response = { success: true, newStatus: newStatus };
-          } else {
-            response = { success: false, message: "Görev bulunamadı." };
-          }
         } else if (islem === "delete_task") {
           await db.collection("tasks").doc(data.id).delete();
           response = { success: true, message: "Görev silindi." };
@@ -1514,17 +1495,6 @@ exports.api = onRequest(
               success: true,
               message: "Görev başarıyla güncellendi.",
             };
-          }
-        } else if (islem === "toggle_task_status") {
-          const docRef = db.collection("tasks").doc(data.id);
-          const doc = await docRef.get();
-          if (doc.exists) {
-            const newStatus =
-              doc.data().status === "active" ? "passive" : "active";
-            await docRef.update({ status: newStatus });
-            response = { success: true, newStatus: newStatus };
-          } else {
-            response = { success: false, message: "Görev bulunamadı." };
           }
         } // --- GÖREVİ TAMAMLA / İLERLET ---
         else if (islem === "complete_task") {
@@ -6566,7 +6536,7 @@ exports.api = onRequest(
         // ==================================================================
         else if (islem === "chatWithAI") {
           const { message, userEmail } = data;
-          const API_KEY = "AIzaSyCDktTR0IAEViCjvOON3jG82uwRzHVYqsc"; // Senin Keyin
+          const API_KEY = process.env.GEMINI_API_KEY; // Senin Keyin
 
           const db = admin.firestore();
           let systemContext = "";
