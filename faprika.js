@@ -8072,57 +8072,57 @@ opacity: 0; animation: fadeUp 0.6s ease-out 1.1s forwards;
 @keyframes fadeUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
 
 /* --- MOBİL UYUMLULUK (HİZALAMA DÜZELTİLDİ) --- */
-        @media (max-width: 768px) {
-            
-            /* 1. YAZIYI YUKARI TAŞIMA */
-            .mdm-intro-content-wrapper { 
-                transform: translateY(-130px) !important; 
-            }
+@media (max-width: 768px) {
 
-            /* 2. 'M' HARFİ AYARI */
-            .mdm-intro-m { 
-                font-size: 32px !important; 
-                /* Aşırı itmek yerine hafifçe sağa çekiyoruz */
-                margin-right: -2px !important; 
-                margin-left: 0 !important;
-                /* Harfin kendi boşluğunu sıfırla */
-                padding: 0 !important;
-                line-height: 1 !important;
-            }
-            
-            /* 3. 'ODUMNET' YAZISI AYARI */
-            .mdm-intro-text { 
-                font-size: 32px !important; 
-                /* 🔥 KRİTİK NOKTA: Masaüstündeki boşluğu iptal edip, M'ye doğru çektik */
-                margin-left: -2px !important; 
-                padding-left: 0 !important;
-                line-height: 1 !important;
-            }
-            
-            /* Yazı Açılma Animasyonu */
-            @keyframes expandText { 
-                0% { width: 0; opacity: 0; } 
-                100% { width: 190px; opacity: 1; } 
-            }
-            
-            /* Slogan Ayarları */
-            .mdm-intro-slogan { 
-                font-size: 9px !important; letter-spacing: 1px !important; 
-                margin-top: 5px !important; width: 90%; 
-            }
-            .mdm-intro-sub { 
-                font-size: 10px !important; letter-spacing: 1px !important; 
-            }
+/* 1. YAZIYI YUKARI TAŞIMA */
+.mdm-intro-content-wrapper { 
+transform: translateY(-130px) !important; 
+}
 
-            /* GIF AYARI (Sabit) */
-            .mdm-bg-gif {
-                object-fit: contain !important; 
-                height: auto !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                background: #0f172a; 
-            }
-        }
+/* 2. 'M' HARFİ AYARI */
+.mdm-intro-m { 
+font-size: 32px !important; 
+/* Aşırı itmek yerine hafifçe sağa çekiyoruz */
+margin-right: -2px !important; 
+margin-left: 0 !important;
+/* Harfin kendi boşluğunu sıfırla */
+padding: 0 !important;
+line-height: 1 !important;
+}
+
+/* 3. 'ODUMNET' YAZISI AYARI */
+.mdm-intro-text { 
+font-size: 32px !important; 
+/* 🔥 KRİTİK NOKTA: Masaüstündeki boşluğu iptal edip, M'ye doğru çektik */
+margin-left: -2px !important; 
+padding-left: 0 !important;
+line-height: 1 !important;
+}
+
+/* Yazı Açılma Animasyonu */
+@keyframes expandText { 
+0% { width: 0; opacity: 0; } 
+100% { width: 190px; opacity: 1; } 
+}
+
+/* Slogan Ayarları */
+.mdm-intro-slogan { 
+font-size: 9px !important; letter-spacing: 1px !important; 
+margin-top: 5px !important; width: 90%; 
+}
+.mdm-intro-sub { 
+font-size: 10px !important; letter-spacing: 1px !important; 
+}
+
+/* GIF AYARI (Sabit) */
+.mdm-bg-gif {
+object-fit: contain !important; 
+height: auto !important;
+top: 50% !important;
+transform: translateY(-50%) !important;
+background: #0f172a; 
+}
+}
 `;
       document.head.appendChild(style);
 
