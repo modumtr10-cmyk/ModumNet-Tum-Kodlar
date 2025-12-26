@@ -2827,6 +2827,16 @@
     </div>
 
     <script>
+      function escapeHtml(text) {
+        if (!text) return ""; // Veri yoksa boş dön
+        return text
+          .toString()
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
       let globalTaskList = []; // Verileri burada tutacağız
       // 🧠 AKILLI HAFIZA FONKSİYONU (CACHE MANAGER)
       async function smartFetch(islem, cacheKey, durationMinutes = 5) {
@@ -4832,26 +4842,34 @@
 
               // Satır HTML
               tbody.innerHTML += `
-              <tr data-id="${i.id}" style="cursor:move;">
-                <td style="color:#aaa; text-align:center;"><i class="fas fa-grip-vertical"></i></td>
-                <td style="font-weight:bold;">${i.title}</td>
-                <td style="color:#e67e22; font-weight:bold;">${i.costXP} XP</td>
-                <td>${i.stock}</td>
-                <td><small>${i.type}</small></td>
-                <td>${lvlBadge}</td>
-                <td>
-                  <div style="display:flex; gap:5px;">
-                    <!-- 🔥 YENİ DÜZENLE BUTONU -->
-                    <button class="btn btn-primary btn-sm" onclick="openEditStoreItem('${i.id}')" title="Düzenle">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <!-- SİL BUTONU -->
-                    <button class="btn btn-outline btn-sm" onclick="deleteStoreItem('${i.id}')" title="Sil">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>`;
+  <tr data-id="${escapeHtml(i.id)}" style="cursor:move;">
+    <td style="color:#aaa; text-align:center;"><i class="fas fa-grip-vertical"></i></td>
+
+    <td style="font-weight:bold;">${escapeHtml(i.title)}</td>
+
+    <td style="color:#e67e22; font-weight:bold;">${i.costXP} XP</td>
+
+    <td>${i.stock}</td>
+
+    <td><small>${escapeHtml(i.type)}</small></td>
+
+    <td>${lvlBadge}</td>
+
+    <td>
+      <div style="display:flex; gap:5px;">
+        <button class="btn btn-primary btn-sm" onclick="openEditStoreItem('${escapeHtml(
+          i.id
+        )}')" title="Düzenle">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="deleteStoreItem('${escapeHtml(
+          i.id
+        )}')" title="Sil">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </td>
+  </tr>`;
             });
 
             // 🔥 SORTABLE.JS'İ BAŞLAT (Eğer kütüphane yüklüyse)
@@ -4925,13 +4943,10 @@
       }
 
       // --- 🔥 SIRALAMAYI KAYDETME FONKSİYONU ---
-      // index.html - <script> etiketleri arasına
-
       async function saveStoreOrder() {
         const btn = document.querySelector(
           'button[onclick="saveStoreOrder()"]'
         );
-        // Eğer buton bulunduysa metnini al, bulunamazsa varsayılan metin ata
         const originalText = btn ? btn.innerHTML : "Sıralamayı Kaydet";
 
         if (btn) {
@@ -4941,24 +4956,16 @@
         }
 
         try {
-          // 🔥 DÜZELTME BURADA:
-          // loadCouponStore fonksiyonunda verileri "store-sortable-list" içine doldurmuştuk.
-          // Okurken de TAM OLARAK oradan okumalıyız.
+          // 1. Tablodaki sırayı oku
           const rows = document.querySelectorAll("#store-sortable-list tr");
-
           const orderedIds = [];
-
           rows.forEach((row) => {
             const id = row.getAttribute("data-id");
-            // Sadece ID'si olan (dolu) satırları listeye ekle
             if (id) orderedIds.push(id);
           });
 
-          console.log("Bulunan Satır Sayısı:", rows.length); // Kontrol için
-          console.log("Gönderilecek ID Listesi:", orderedIds); // Kontrol için
-
           if (orderedIds.length === 0) {
-            alert("Sıralanacak ürün bulunamadı! (Tablo ID'sini kontrol et)");
+            alert("Sıralanacak ürün bulunamadı!");
             if (btn) {
               btn.innerHTML = originalText;
               btn.disabled = false;
@@ -4966,13 +4973,33 @@
             return;
           }
 
-          // 2. Backend'e gönder
+          // 🔒 2. GÜVENLİK KONTROLÜ
+          // Tarayıcı hafızasında şifre var mı bakalım
+          let adminPass = localStorage.getItem("admin_secret_temp");
+
+          // Yoksa soralım
+          if (!adminPass) {
+            adminPass = prompt("🔑 Lütfen İşlem Şifresini Giriniz:");
+            if (!adminPass) {
+              alert("İşlem iptal edildi.");
+              if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+              }
+              return;
+            }
+            // Şifreyi kaydet (sayfa kapanana kadar hatırlasın)
+            localStorage.setItem("admin_secret_temp", adminPass);
+          }
+
+          // 3. Backend'e gönder
           const res = await fetch(getApiUrl(), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               islem: "update_store_order",
               orderedIds: orderedIds,
+              admin_key: adminPass, // Şifreyi paketleyip gönderiyoruz
             }),
           });
 
@@ -4980,10 +5007,15 @@
 
           if (data.success) {
             alert("✅ " + data.message);
-            // Sıralamanın oturduğunu görmek için tabloyu yenile
             loadCouponStore();
           } else {
-            alert("Hata: " + data.message);
+            // Şifre yanlışsa hafızadan silelim ki tekrar sorsun
+            if (data.message.includes("YETKİSİZ")) {
+              localStorage.removeItem("admin_secret_temp");
+              alert("⛔ HATA: Girdiğiniz şifre yanlış!");
+            } else {
+              alert("Hata: " + data.message);
+            }
           }
         } catch (e) {
           console.error(e);
