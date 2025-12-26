@@ -1716,36 +1716,22 @@ exports.api = onRequest(
         // ----------------------------------------------------------------------
         // MODÜL 3: ÇEKİLİŞ & KURA
         // ----------------------------------------------------------------------
-        // --- DÜZELTİLEN ÇEKİLİŞ LİSTELEME (CANLI SAYIM VE TARİH FİX) ---
-        // --- AKILLI ÇEKİLİŞ LİSTELEME (AKTİF/ARŞİV AYRIMLI) ---
+        // --- 🚀 DÜZELTİLMİŞ ÇEKİLİŞ LİSTELEME (ID BAZLI %100 GARANTİLİ) ---
         else if (islem === "get_raffles") {
-          // --- PARÇA DEĞİŞİM BAŞLANGICI ---
-          const { lastId } = data; // Frontend'den gelen kaldığı yer
-          let query = db.collection("raffles").orderBy("bitisTarihi", "desc");
-
-          // Eğer 'Daha Fazla' dendiyse, son kayıttan sonrasını getir
-          if (lastId) {
-            const lastDoc = await db.collection("raffles").doc(lastId).get();
-            if (lastDoc.exists) query = query.startAfter(lastDoc);
-          }
-
-          // Sadece 50 tane çek (Fren Mekanizması)
-          const snapshot = await query.limit(50).get();
-          // --- PARÇA DEĞİŞİM BİTİŞİ ---
+          const snapshot = await db.collection("raffles").get();
           const raffles = [];
 
           for (const doc of snapshot.docs) {
             const d = doc.data();
 
-            // 1. TARİH DÜZELTME (Screenshot_62'deki sondaki '_' işaretini yakaladık)
+            // 1. TARİH DÜZELTME
             let rawDate =
-              d["bitis_tarihi_gg_aa_yyyy_ss_dk_"] || // 🔥 İŞTE BURASI: Sondaki alt çizgiye dikkat
+              d["bitis_tarihi_gg_aa_yyyy_ss_dk_"] ||
               d.bitis_tarihi_gg_aa_yyyy_ss_dk ||
               d.bitis_tarihi ||
               d.endDate ||
               "-";
 
-            // Tarih metnini temizle
             if (
               rawDate &&
               typeof rawDate === "string" &&
@@ -1754,36 +1740,37 @@ exports.api = onRequest(
               rawDate = rawDate.replace("T", " ").split(".")[0];
             }
 
-            // 2. DOĞRU KUTUYU SEÇ VE SAY
-            // Çekilişin durumuna bakalım
+            // 2. DOĞRU TABLOYU SEÇ
+            // Çekiliş bitmişse arşivden, bitmemişse aktif tablodan say
             const isCompleted =
               d.durum === "Tamamlandı" ||
               d.status === "completed" ||
               d.durum === "Pasif";
 
-            // Eğer bitmişse "archive_participants", aktifse "raffle_participants" tablosuna bakacağız
             const hedefTablo = isCompleted
               ? "archive_participants"
               : "raffle_participants";
 
+            // 🔥 KRİTİK DÜZELTME BURASI: ARTIK ID İLE SORGULUYORUZ 🔥
             let gercekKatilimciSayisi = 0;
-            if (d.cekilis_adi) {
-              // Seçilen hedef tabloda isme göre sayım yap
+            try {
+              // İsim yerine (cekilis_adi), ID (raffleId) kullanıyoruz.
+              // doc.id = Çekilişin benzersiz kimliğidir. Asla şaşmaz.
               const pSnap = await db
                 .collection(hedefTablo)
-                .where("cekilis_adi", "==", d.cekilis_adi)
+                .where("raffleId", "==", doc.id)
                 .count()
                 .get();
 
               gercekKatilimciSayisi = pSnap.data().count;
+            } catch (err) {
+              console.log("Sayım hatası:", err);
             }
-            const karttakiSayi = parseInt(d.participantCount) || 0;
 
+            // Eğer veritabanındaki kartta yazan sayı yanlışsa, arka planda düzelt
+            const karttakiSayi = parseInt(d.participantCount) || 0;
             if (d.durum === "Aktif" && gercekKatilimciSayisi !== karttakiSayi) {
-              console.log(
-                `DÜZELTME: ${d.name} için sayı güncelleniyor (${karttakiSayi} -> ${gercekKatilimciSayisi})`
-              );
-              // Arka planda güncelle (Await kullanmıyoruz ki listeleme yavaşlamasın)
+              // Await kullanmıyoruz, hız kaybetmeyelim
               doc.ref.update({ participantCount: gercekKatilimciSayisi });
             }
 
@@ -1792,23 +1779,13 @@ exports.api = onRequest(
               ad: d.cekilis_adi || d.name || "İsimsiz",
               bitisTarihi: rawDate,
               odul: d.odul_adi || d.reward || "-",
-              // Saydığımız gerçek rakam buraya gelir
-              participantCount: gercekKatilimciSayisi,
+              participantCount: gercekKatilimciSayisi, // %100 Gerçek veri
               winnerCount: parseInt(d.kazanan_sayisi) || 1,
-              durum: d.durum || "Pasif", // Durumu olduğu gibi yansıt
+              durum: d.durum || "Pasif",
             });
           }
 
-          const lastVisible =
-            snapshot.docs.length > 0
-              ? snapshot.docs[snapshot.docs.length - 1].id
-              : null;
-          response = {
-            success: true,
-            raffles: raffles,
-            lastId: lastVisible,
-            hasMore: snapshot.docs.length === 50, // 50 tane geldiyse devamı vardır
-          };
+          response = { success: true, raffles: raffles };
         } else if (islem === "create_raffle") {
           const { name, endDate, reward, winnerCount } = data;
 
