@@ -1719,7 +1719,19 @@ exports.api = onRequest(
         // --- DÜZELTİLEN ÇEKİLİŞ LİSTELEME (CANLI SAYIM VE TARİH FİX) ---
         // --- AKILLI ÇEKİLİŞ LİSTELEME (AKTİF/ARŞİV AYRIMLI) ---
         else if (islem === "get_raffles") {
-          const snapshot = await db.collection("raffles").get();
+          // --- PARÇA DEĞİŞİM BAŞLANGICI ---
+          const { lastId } = data; // Frontend'den gelen kaldığı yer
+          let query = db.collection("raffles").orderBy("bitisTarihi", "desc");
+
+          // Eğer 'Daha Fazla' dendiyse, son kayıttan sonrasını getir
+          if (lastId) {
+            const lastDoc = await db.collection("raffles").doc(lastId).get();
+            if (lastDoc.exists) query = query.startAfter(lastDoc);
+          }
+
+          // Sadece 50 tane çek (Fren Mekanizması)
+          const snapshot = await query.limit(50).get();
+          // --- PARÇA DEĞİŞİM BİTİŞİ ---
           const raffles = [];
 
           for (const doc of snapshot.docs) {
@@ -1787,7 +1799,16 @@ exports.api = onRequest(
             });
           }
 
-          response = { success: true, raffles: raffles };
+          const lastVisible =
+            snapshot.docs.length > 0
+              ? snapshot.docs[snapshot.docs.length - 1].id
+              : null;
+          response = {
+            success: true,
+            raffles: raffles,
+            lastId: lastVisible,
+            hasMore: snapshot.docs.length === 50, // 50 tane geldiyse devamı vardır
+          };
         } else if (islem === "create_raffle") {
           const { name, endDate, reward, winnerCount } = data;
 
