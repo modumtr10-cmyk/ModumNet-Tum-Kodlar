@@ -1306,7 +1306,7 @@
                 <thead>
                   <tr>
                     <th>Soru</th>
-                    <th>Sonuçlar (Dağılım)</th> 
+                    <th>Sonuçlar (Dağılım)</th>
                     <th>Toplam</th>
                     <th>Durum</th>
                     <th>İşlem</th>
@@ -3810,7 +3810,22 @@
           if (data.success && data.logs.length > 0) {
             tbody.innerHTML = "";
 
+            // --- 🔥 YENİ EKLENEN LOGGER SIRALAMA KODU (BAŞLANGIÇ) ---
+            data.logs.sort((a, b) => {
+              // Varsa timestamp (createdAt), yoksa tarih stringi (tarih) üzerinden karşılaştır
+              const timeA = a.createdAt
+                ? a.createdAt._seconds * 1000
+                : new Date(a.tarih || 0).getTime();
+              const timeB = b.createdAt
+                ? b.createdAt._seconds * 1000
+                : new Date(b.tarih || 0).getTime();
+
+              return timeB - timeA; // Büyük olan (En Yeni) en üste çıkar
+            });
+            // --- 🔥 YENİ EKLENEN LOGGER SIRALAMA KODU (BİTİŞ) ---
+
             data.logs.forEach((log) => {
+              // ... (kodun geri kalanı aynı)
               // Renklendirme
               let badgeClass = "badge-info"; // Mavi (Varsayılan)
               const act = (log.action || "").toUpperCase();
@@ -4230,6 +4245,24 @@
           if (data.success && Array.isArray(data.raffles)) {
             tbody.innerHTML = "";
 
+            // --- 🔥 YENİ EKLENEN SIRALAMA KODU (BAŞLANGIÇ) ---
+            data.raffles.sort((a, b) => {
+              // 1. Kriter: Aktifler her zaman en üstte olsun
+              const statusA = (a.durum || a.status || "").toLowerCase();
+              const statusB = (b.durum || b.status || "").toLowerCase();
+              const isActiveA = statusA === "active" || statusA === "aktif";
+              const isActiveB = statusB === "active" || statusB === "aktif";
+
+              if (isActiveA && !isActiveB) return -1; // A yukarı
+              if (!isActiveA && isActiveB) return 1; // B yukarı
+
+              // 2. Kriter: Tarihe göre (En yeni tarihli en üstte)
+              const dateA = new Date(a.bitisTarihi || a.endDate || 0).getTime();
+              const dateB = new Date(b.bitisTarihi || b.endDate || 0).getTime();
+              return dateB - dateA; // Yeniden eskiye
+            });
+            // --- 🔥 YENİ EKLENEN SIRALAMA KODU (BİTİŞ) ---
+
             if (data.raffles.length === 0) {
               tbody.innerHTML =
                 '<tr><td colspan="6" style="text-align:center;">Henüz çekiliş yok.</td></tr>';
@@ -4496,6 +4529,19 @@
           const data = await res.json();
           if (data.success) {
             tbody.innerHTML = "";
+
+            // --- 🔥 YENİ EKLENEN SIRALAMA KODU (BAŞLANGIÇ) ---
+            data.list.sort((a, b) => {
+              // Varsa _sortScore (kesin zaman damgası) kullan, yoksa tarihi çevir
+              const timeA = a._sortScore
+                ? a._sortScore
+                : new Date(a.createdAt || a.date || 0).getTime();
+              const timeB = b._sortScore
+                ? b._sortScore
+                : new Date(b.createdAt || b.date || 0).getTime();
+
+              return timeB - timeA; // Büyük olan (yeni olan) en üste
+            });
             // ... (loadParticipants içindeki data.list.forEach kısmı) ...
 
             data.list.forEach((p) => {
