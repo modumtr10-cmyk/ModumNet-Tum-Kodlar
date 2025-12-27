@@ -3766,203 +3766,55 @@ ${gridHtml}
       .join("");
       return `<div class="mdm-level-journey"><div class="mdm-level-header"><span>Mevcut: <b style="color:#fff">${user.seviye}</b></span><span>${currentXP} XP</span></div><div class="mdm-level-steps"><div class="mdm-level-line"></div><div class="mdm-level-line-fill" style="width:${totalProgress}%"></div>${stepsHtml}</div></div>`;
     }
-    // --- MAĞAZA SEKMESİ (AYRIŞTIRILMIŞ PREMIUM VERSİYON) ---
+    // --- MAĞAZA SEKMESİ (YENİ TABLI SİSTEM v2.0) ---
     async function renderStoreTab() {
       const container = document.getElementById("mdm-store-container");
       if (!container) return;
 
-      container.innerHTML =
-        '<div style="text-align:center; padding:40px; color:#94a3b8;"><i class="fas fa-circle-notch fa-spin"></i> Mağaza Yükleniyor...</div>';
+      container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8;"><i class="fas fa-circle-notch fa-spin"></i> Mağaza Yükleniyor...</div>';
 
-      const userLevel =
-            APP_STATE.user && APP_STATE.user.seviye
-      ? APP_STATE.user.seviye
-      : "Çaylak";
-      const LEVEL_POWER = { Çaylak: 1, Usta: 2, Şampiyon: 3, Efsane: 4 };
-      const myPower = LEVEL_POWER[userLevel] || 1;
-      const myCurrentPuan = parseInt(APP_STATE.user.puan) || 0;
-
-      // Verileri Çek
+      // 1. Verileri Çek
       const pItems = fetchApi("get_store_items");
-      const pHistory = fetchApi("get_user_history", {
-        email: APP_STATE.user.email,
-      });
+      const pHistory = fetchApi("get_user_history", { email: APP_STATE.user.email });
 
       const [res, resHist] = await Promise.all([pItems, pHistory]);
 
-      // Satın alınanları bul
+      // 2. Satın alınanları sadeleştir
       let purchasedItems = [];
-      let ownedFrames = APP_STATE.user.ownedFrames || []; // Kullanıcının zaten sahip olduğu çerçeveler
-
       if (resHist && resHist.success && resHist.list) {
-        purchasedItems = resHist.list.map((h) =>
-                                          (h.action || h.islem || "").toLowerCase()
-                                         );
+        purchasedItems = resHist.list.map((h) => (h.action || h.islem || "").toLowerCase());
       }
 
       if (res && res.success && res.items.length > 0) {
-        let finalHtml = "";
+        // 3. VERİYİ KAYDET (ModumApp.switchStoreCategory kullanabilsin diye)
+        APP_STATE.storeContext = {
+          items: res.items,
+          purchased: purchasedItems
+        };
 
-        // 🔥 1. AYRIŞTIRMA: Çerçeveler ve Diğerleri
-        // Başlığında "Çerçeve" geçenleri veya tipi "avatar_frame" olanları ayır
-        const frameItems = res.items.filter(
-          (i) =>
-          i.title.toLowerCase().includes("çerçeve") ||
-          i.type === "avatar_frame"
-        );
-        const normalItems = res.items.filter((i) => !frameItems.includes(i));
-
-        // 🔥 2. KOZMETİK MAĞAZASI (ÇERÇEVELER) HTML
-        if (frameItems.length > 0) {
-          let framesHtml = "";
-
-          frameItems.forEach((f) => {
-            // Bu çerçeveye zaten sahip mi?
-            const frameClass = f.kupon_kodu || f.code || "";
-            const isOwned =
-                  ownedFrames.includes(frameClass) ||
-                  purchasedItems.some((h) => h.includes(f.title.toLowerCase()));
-
-            let btnText = `<div style="font-size:12px; font-weight:800; color:#fbbf24;">${f.costXP} XP</div>`;
-
-            // 🔥 DEĞİŞİKLİK BURADA: buyItem fonksiyonuna 4. parametre olarak 'frameClass' ekledik
-            let action = `onclick="ModumApp.openFramePurchaseModal('${f.id}', '${f.title}', ${f.costXP}, '${frameClass}')"`;
-
-            let cardStyle = "";
-
-            if (isOwned) {
-              btnText = `<div style="font-size:10px; font-weight:bold; color:#4ade80;">SAHİPSİN ✅</div>`;
-              action = ""; // Tıklanmasın
-              cardStyle = "opacity:0.6; filter:grayscale(0.5);";
-            }
-
-            framesHtml += `
-<div class="mdm-frame-card" style="${cardStyle}" ${action}>
-<div class="mdm-preview-avatar">
-<div class="mdm-avatar-frame ${frameClass}"></div>
-👤
+        // 4. HTML İSKELETİ (SEKMELER + İÇERİK ALANI)
+        // Kullanıcıya iki seçenek sunuyoruz: Dijital Kuponlar ve Ürünler
+        container.innerHTML = `
+<div style="display:flex; gap:10px; margin-bottom:20px; background:#1e293b; padding:5px; border-radius:12px; border:1px solid #334155;">
+<button class="mdm-store-tab-btn" data-tab="coupons" onclick="ModumApp.switchStoreCategory('coupons')" 
+style="flex:1; padding:12px; border:1px solid transparent; border-radius:8px; cursor:pointer; font-weight:bold; font-size:13px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+<i class="fas fa-ticket-alt"></i> DİJİTAL KUPONLAR
+  </button>
+<button class="mdm-store-tab-btn" data-tab="products" onclick="ModumApp.switchStoreCategory('products')" 
+style="flex:1; padding:12px; border:1px solid transparent; border-radius:8px; cursor:pointer; font-weight:bold; font-size:13px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+<i class="fas fa-gift"></i> ÜRÜNLER & FIRSATLAR
+  </button>
   </div>
-<div style="font-size:11px; color:#fff; font-weight:bold; margin-bottom:5px; text-align:center; line-height:1.2;">${f.title}</div>
-${btnText}
-  </div>`;
-          });
 
-          finalHtml += `
-<div class="mdm-cosmetic-area">
-<i class="fas fa-magic mdm-cosmetic-bg-icon"></i>
-<div class="mdm-cosmetic-title"><i class="fas fa-gem"></i> KOZMETİK MAĞAZASI</div>
-<div style="font-size:11px; color:#a78bfa; margin-bottom:15px;">Puanlarınla profilini kişiselleştir, farkını göster!</div>
-<div class="mdm-frame-showcase">
-${framesHtml}
-  </div>
-  </div>`;
-        }
-
-        // 🔥 3. STANDART KUPON MAĞAZASI (LEVEL GRUPLU)
-        // (Eski mantığın aynısı, sadece 'normalItems' dizisini kullanıyor)
-        const groups = { Çaylak: [], Usta: [], Şampiyon: [], Efsane: [] };
-
-        normalItems.forEach((item) => {
-          let lvlRaw = item.minLevel || "Çaylak";
-          let lvl = "Çaylak";
-          if (lvlRaw.toLowerCase().includes("efsane")) lvl = "Efsane";
-          else if (
-            lvlRaw.toLowerCase().includes("şampiyon") ||
-            lvlRaw.toLowerCase().includes("sampiyon")
-          )
-            lvl = "Şampiyon";
-          else if (lvlRaw.toLowerCase().includes("usta")) lvl = "Usta";
-          groups[lvl].push(item);
-        });
-
-        const order = ["Çaylak", "Usta", "Şampiyon", "Efsane"];
-
-        order.forEach((groupName) => {
-          const products = groups[groupName];
-          if (products.length === 0) return;
-
-          let color = "#10b981";
-          if (groupName === "Usta") color = "#8b5cf6";
-          if (groupName === "Şampiyon") color = "#f59e0b";
-          if (groupName === "Efsane") color = "#ef4444";
-
-          const reqPower = LEVEL_POWER[groupName] || 1;
-          const isLockedGroup = myPower < reqPower;
-          const lockIcon = isLockedGroup
-          ? '<i class="fas fa-lock" style="margin-left:5px;"></i>'
-          : "";
-          const groupTitle = isLockedGroup
-          ? `${groupName} Mağazası (Kilitli)`
-          : `${groupName} Mağazası`;
-
-          finalHtml += `
-<div style="margin-top:25px; margin-bottom:10px; padding-left:10px; border-left:4px solid ${color}; display:flex; align-items:center;">
-<h3 style="color:#fff; font-size:15px; margin:0;">${groupTitle} ${lockIcon}</h3>
-  </div>
-<div class="mdm-store-grid">
-`;
-
-          products.forEach((p) => {
-            const titleLower = p.title.toLowerCase();
-            const isUnlimited =
-                  titleLower.includes("hak") ||
-                  titleLower.includes("kutu") ||
-                  titleLower.includes("sandık");
-            const alreadyBought =
-                  !isUnlimited &&
-                  purchasedItems.some((hItem) => hItem.includes(titleLower));
-            var itemCost = parseInt(p.costXP) || 0;
-
-            let btnHtml = "";
-            let lockOverlay = "";
-            let opacity = "1";
-
-            if (isLockedGroup) {
-              btnHtml = `<button class="mdm-btn-store locked" disabled><i class="fas fa-lock"></i> KİLİTLİ</button>`;
-              lockOverlay = `<div class="mdm-card-lock-overlay"><i class="mdm-lock-icon fas fa-lock"></i></div>`;
-              opacity = "0.6";
-            } else if (alreadyBought) {
-              btnHtml = `<button class="mdm-btn-store soldout" style="background:#475569; opacity:1; cursor:default;" disabled><i class="fas fa-check"></i> ALINDI</button>`;
-              opacity = "0.5";
-            } else if (myCurrentPuan < itemCost) {
-              btnHtml = `<button class="mdm-btn-store" style="background:#334155; color:#94a3b8; cursor:not-allowed;" disabled>PUAN YETERSİZ</button>`;
-            } else {
-              btnHtml = `<button class="mdm-btn-store buy" onclick="ModumApp.buyItem('${p.id}', '${p.title}', ${p.costXP})">SATIN AL</button>`;
-            }
-
-            let icon = '<i class="fas fa-ticket-alt"></i>';
-            if (titleLower.includes("indirim"))
-              icon = '<i class="fas fa-percent"></i>';
-            if (titleLower.includes("kargo"))
-              icon = '<i class="fas fa-truck"></i>';
-            if (titleLower.includes("kutu") || titleLower.includes("sandık"))
-              icon = '<i class="fas fa-gift"></i>';
-            if (titleLower.includes("hak"))
-              icon = '<i class="fas fa-ticket-alt"></i>';
-            if (p.type === "physical_gift") icon = "🎁";
-
-            finalHtml += `
-<div class="mdm-store-card" style="opacity:${opacity}; border-color:${
-            isLockedGroup ? "#334155" : color
-          };">
-${lockOverlay}
-<div class="mdm-sc-header">
-<div class="mdm-sc-icon-box" style="color:${color}; background:${color}15;">${icon}</div>
-<div class="mdm-sc-cost" style="color:${color};">${p.costXP} XP</div>
-  </div>
-<div class="mdm-sc-title">${p.title}</div>
-<div class="mdm-sc-desc">${p.description || ""}</div>
-<div class="mdm-sc-footer">${btnHtml}</div>
+<div id="mdm-store-dynamic-content">
   </div>
 `;
-          });
-          finalHtml += `</div>`;
-        });
 
-        container.innerHTML = finalHtml;
+        // 5. Varsayılan Olarak "Kuponlar" Sekmesini Aç
+        ModumApp.switchStoreCategory('coupons');
+
       } else {
-        container.innerHTML =
-          '<div style="text-align:center; padding:40px; color:#94a3b8;">Mağazada aktif ürün yok.</div>';
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8;">Mağazada aktif ürün yok.</div>';
       }
     }
 
@@ -7267,6 +7119,198 @@ ${opt}
             alert("Hata: " + res.message);
           }
         });
+      },
+      // --- 🔥 YENİ: MAĞAZA KATEGORİ DEĞİŞTİRİCİ (REVİZE EDİLMİŞ) ---
+      switchStoreCategory: function(category) {
+        if(!APP_STATE.storeContext) return;
+
+        var items = APP_STATE.storeContext.items || [];
+        var purchased = APP_STATE.storeContext.purchased || [];
+        var ownedFrames = APP_STATE.user.ownedFrames || [];
+
+        // 1. Buton Görselliği
+        document.querySelectorAll('.mdm-store-tab-btn').forEach(btn => {
+          if(btn.dataset.tab === category) {
+            btn.style.background = "#3b82f6";
+            btn.style.color = "#fff";
+            btn.style.borderColor = "#60a5fa";
+            btn.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.4)";
+          } else {
+            btn.style.background = "rgba(255,255,255,0.05)";
+            btn.style.color = "#94a3b8";
+            btn.style.borderColor = "rgba(255,255,255,0.1)";
+            btn.style.boxShadow = "none";
+          }
+        });
+
+        var container = document.getElementById("mdm-store-dynamic-content");
+        if(!container) return;
+
+        var finalHtml = "";
+
+        // --- 🅰️ TAB 1: DİJİTAL KUPONLAR + ÖZEL FIRSATLAR ---
+        if(category === 'coupons') {
+
+          // 1. Önce "Özel Fırsatları" Bul (Sandık, Hak, Bilet)
+          const specialItems = items.filter(i => {
+            let t = i.title.toLowerCase();
+            let isFrame = t.includes("çerçeve") || i.type === "avatar_frame";
+            let isSpecial = t.includes("sandık") || t.includes("kutu") || t.includes("hak") || t.includes("bilet");
+            return !isFrame && isSpecial; 
+          });
+
+          // 2. Sonra "Normal Kuponları" Bul
+          const couponItems = items.filter(i => {
+            let t = i.title.toLowerCase();
+            let isFrame = t.includes("çerçeve") || i.type === "avatar_frame";
+            let isSpecial = t.includes("sandık") || t.includes("kutu") || t.includes("hak") || t.includes("bilet");
+            return !isFrame && !isSpecial;
+          });
+
+          // 3. EKRANA BAS (Önce Özeller, Sonra Kuponlar)
+
+          // A) ÖZEL FIRSATLAR (En Tepeye)
+          if(specialItems.length > 0) {
+            finalHtml += ModumApp.renderStoreGrid(specialItems, purchased, "🔥 ÖZEL FIRSATLAR");
+          }
+
+          // B) STANDART KUPONLAR
+          if(couponItems.length > 0) {
+            // Araya bir çizgi çekelim şık dursun
+            if(specialItems.length > 0) finalHtml += `<div style="height:1px; background:#334155; margin:30px 10px;"></div>`;
+            finalHtml += ModumApp.renderStoreGrid(couponItems, purchased, "🎫 İNDİRİM KUPONLARI");
+          } 
+
+          if(specialItems.length === 0 && couponItems.length === 0) {
+            finalHtml += '<div style="text-align:center; padding:30px; color:#94a3b8;">Aktif kupon bulunamadı.</div>';
+          }
+        }
+
+        // --- 🅱️ TAB 2: ÜRÜNLER (Sadece Çerçeveler ve Gelecek Ürünler) ---
+        if(category === 'products') {
+
+          // Sadece Çerçeveleri Bul
+          const frameItems = items.filter(i => i.title.toLowerCase().includes("çerçeve") || i.type === "avatar_frame");
+
+          if(frameItems.length > 0) {
+            let framesHtml = "";
+            frameItems.forEach(f => {
+              const frameClass = f.kupon_kodu || f.code || "";
+              const isOwned = ownedFrames.includes(frameClass) || purchased.some(h => h.includes(f.title.toLowerCase()));
+
+              let btnText = `<div style="font-size:12px; font-weight:800; color:#fbbf24;">${f.costXP} XP</div>`;
+              let action = `onclick="ModumApp.openFramePurchaseModal('${f.id}', '${f.title}', ${f.costXP}, '${frameClass}')"`;
+              let cardStyle = "";
+
+              if (isOwned) {
+                btnText = `<div style="font-size:10px; font-weight:bold; color:#4ade80;">SAHİPSİN ✅</div>`;
+                action = ""; 
+                cardStyle = "opacity:0.6; filter:grayscale(0.5);";
+              }
+
+              framesHtml += `
+<div class="mdm-frame-card" style="${cardStyle}" ${action}>
+<div class="mdm-preview-avatar">
+<div class="mdm-avatar-frame ${frameClass}"></div> 👤
+  </div>
+<div style="font-size:11px; color:#fff; font-weight:bold; margin-bottom:5px; text-align:center; line-height:1.2;">${f.title}</div>
+${btnText}
+  </div>`;
+            });
+
+            finalHtml += `
+<div class="mdm-cosmetic-area" style="margin-top:0;">
+<i class="fas fa-magic mdm-cosmetic-bg-icon"></i>
+<div class="mdm-cosmetic-title"><i class="fas fa-gem"></i> KOZMETİK & AKSESUAR</div>
+<div class="mdm-frame-showcase">${framesHtml}</div>
+  </div>`;
+          } else {
+            finalHtml += '<div style="text-align:center; padding:30px; color:#94a3b8;">Yakında buraya efsane ürünler gelecek!</div>';
+          }
+        }
+
+        container.innerHTML = finalHtml;
+      },
+
+      // --- YARDIMCI: GRİD BASMA MOTORU (Tekrarı önlemek için) ---
+      renderStoreGrid: function(productList, purchasedList, headerTitle) {
+        const LEVEL_POWER = { "Çaylak": 1, "Usta": 2, "Şampiyon": 3, "Efsane": 4 };
+        const userLevel = APP_STATE.user.seviye || "Çaylak";
+        const myPower = LEVEL_POWER[userLevel] || 1;
+        const myCurrentPuan = parseInt(APP_STATE.user.puan) || 0;
+
+        // Gruplama
+        const groups = { "Çaylak": [], "Usta": [], "Şampiyon": [], "Efsane": [] };
+        productList.forEach(item => {
+          let lvl = "Çaylak";
+          let r = (item.minLevel || "").toLowerCase();
+          if (r.includes("efsane")) lvl = "Efsane";
+          else if (r.includes("şampiyon") || r.includes("sampiyon")) lvl = "Şampiyon";
+          else if (r.includes("usta")) lvl = "Usta";
+          groups[lvl].push(item);
+        });
+
+        let html = "";
+        const order = ["Çaylak", "Usta", "Şampiyon", "Efsane"];
+
+        order.forEach(groupName => {
+          const products = groups[groupName];
+          if (products.length === 0) return;
+
+          let color = "#10b981";
+          if (groupName === "Usta") color = "#8b5cf6";
+          if (groupName === "Şampiyon") color = "#f59e0b";
+          if (groupName === "Efsane") color = "#ef4444";
+
+          const reqPower = LEVEL_POWER[groupName] || 1;
+          const isLockedGroup = myPower < reqPower;
+          const lockIcon = isLockedGroup ? '<i class="fas fa-lock"></i>' : '';
+
+          html += `<div style="margin-top:20px; margin-bottom:10px; padding-left:10px; border-left:4px solid ${color};"><h3 style="color:#fff; font-size:14px; margin:0;">${groupName} ${headerTitle} ${lockIcon}</h3></div><div class="mdm-store-grid">`;
+
+          products.forEach(p => {
+            let titleLower = p.title.toLowerCase();
+            let isUnlimited = titleLower.includes("hak") || titleLower.includes("sandık") || titleLower.includes("kutu");
+            let alreadyBought = !isUnlimited && purchasedList.some(h => h.includes(titleLower));
+            let itemCost = parseInt(p.costXP) || 0;
+
+            let btnHtml = "";
+            let lockOverlay = "";
+            let opacity = "1";
+
+            if (isLockedGroup) {
+              btnHtml = `<button class="mdm-btn-store locked" disabled><i class="fas fa-lock"></i> KİLİTLİ</button>`;
+              lockOverlay = `<div class="mdm-card-lock-overlay"><i class="mdm-lock-icon fas fa-lock"></i></div>`;
+              opacity = "0.6";
+            } else if (alreadyBought) {
+              btnHtml = `<button class="mdm-btn-store soldout" disabled style="background:#475569; opacity:1;"><i class="fas fa-check"></i> ALINDI</button>`;
+              opacity = "0.6";
+            } else if (myCurrentPuan < itemCost) {
+              btnHtml = `<button class="mdm-btn-store" disabled style="background:#334155; color:#94a3b8;">PUAN YETERSİZ</button>`;
+            } else {
+              btnHtml = `<button class="mdm-btn-store buy" onclick="ModumApp.buyItem('${p.id}', '${p.title}', ${p.costXP})">SATIN AL</button>`;
+            }
+
+            let icon = '🎁';
+            if(titleLower.includes("indirim")) icon = '🏷️';
+            if(titleLower.includes("kargo")) icon = '🚚';
+            if(titleLower.includes("hak")) icon = '🎟️';
+
+            html += `
+<div class="mdm-store-card" style="opacity:${opacity}; border-color:${isLockedGroup ? '#334155' : color};">
+${lockOverlay}
+<div class="mdm-sc-header">
+<div class="mdm-sc-icon-box" style="color:${color}; background:${color}15;">${icon}</div>
+<div class="mdm-sc-cost" style="color:${color};">${p.costXP} XP</div>
+  </div>
+<div class="mdm-sc-title">${p.title}</div>
+<div class="mdm-sc-desc">${p.description || ""}</div>
+<div class="mdm-sc-footer">${btnHtml}</div>
+  </div>`;
+          });
+          html += `</div>`;
+        });
+        return html;
       },
     }; // <--- BURASI ÇOK ÖNEMLİ: window.ModumApp BU NOKTALI VİRGÜL İLE BİTER.
 
