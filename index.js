@@ -2050,48 +2050,58 @@ exports.api = onRequest(
             } else {
               // ⚠️ PLAN B: Dosya yoksa ESKİ YÖNTEMLE çek (Yedek Paraşüt)
               // Robot çalışana kadar site boş kalmasın diye burası var.
+              // ⚠️ PLAN B: Dosya yoksa ESKİ YÖNTEMLE çek (Yedek Paraşüt)
               console.log(
                 "⚠️ Vitrin özeti bulunamadı, manuel tarama yapılıyor..."
               );
 
-              const snapshot = await db
-                .collection("raffles")
-                .where("status", "==", "active")
-                .get();
+              // 1. ADIM: FİLTRESİZ ÇEKİYORUZ (Kapıdaki engeli kaldırdık)
+              const snapshot = await db.collection("raffles").get();
+
               let activeRaffles = [];
 
               snapshot.forEach((doc) => {
                 const d = doc.data();
 
-                // --- YEDEK RESİM MANTIĞI (Sadece acil durumda çalışır) ---
-                let img = "https://www.modum.tr/i/m/001/0013355.png"; // Varsayılan
-                const txt = ((d.name || "") + (d.reward || "")).toLowerCase();
+                // 🔥 2. ADIM: İÇERİDE "AKILLI KONTROL" YAPIYORUZ
+                // "Aktif", "active", "Active" veya true... Hepsini kabul et.
+                const st = (d.status || d.durum || "").toLowerCase();
+                const isActive =
+                  st === "active" || st === "aktif" || d.aktif === true;
 
-                // Senin özel resimlerin (Robot bozulursa burası kurtarır)
-                if (txt.includes("1500"))
-                  img = "https://www.modum.tr/i/m/001/0013465.jpeg";
-                else if (txt.includes("1000"))
-                  img = "https://www.modum.tr/i/m/001/0013464.jpeg";
-                else if (txt.includes("500"))
-                  img = "https://www.modum.tr/i/m/001/0015859.jpeg";
-                else if (txt.includes("250"))
-                  img = "https://www.modum.tr/i/m/001/0013463.jpeg";
-                else if (txt.includes("150"))
-                  img = "https://www.modum.tr/i/m/001/0016165.jpeg";
+                // Sadece aktifse listeye al
+                if (isActive) {
+                  // --- YEDEK RESİM MANTIĞI ---
+                  let img = "https://www.modum.tr/i/m/001/0013355.png";
+                  const txt = ((d.name || "") + (d.reward || "")).toLowerCase();
 
-                activeRaffles.push({
-                  id: doc.id,
-                  ad: d.name || d.cekilis_adi,
-                  resim: d.resim || img,
-                  odul: d.reward,
-                  bitisTarihi: d.endDate || new Date().toISOString(),
-                  katilimciSayisi: parseInt(d.participantCount) || 0,
-                  durum: "Aktif",
-                });
+                  if (txt.includes("1500"))
+                    img = "https://www.modum.tr/i/m/001/0013465.jpeg";
+                  else if (txt.includes("1000"))
+                    img = "https://www.modum.tr/i/m/001/0013464.jpeg";
+                  else if (txt.includes("500"))
+                    img = "https://www.modum.tr/i/m/001/0015859.jpeg";
+                  else if (txt.includes("250"))
+                    img = "https://www.modum.tr/i/m/001/0013463.jpeg";
+                  else if (txt.includes("150"))
+                    img = "https://www.modum.tr/i/m/001/0016165.jpeg";
+
+                  activeRaffles.push({
+                    id: doc.id,
+                    ad: d.name || d.cekilis_adi,
+                    resim: d.resim || img,
+                    odul: d.reward,
+                    bitisTarihi: d.endDate || new Date().toISOString(),
+                    katilimciSayisi: parseInt(d.participantCount) || 0,
+                    durum: "Aktif",
+                  });
+                }
               });
+
+              // Tamamlananları çekme kısmı (Aynı kalabilir veya benzer şekilde güncellenebilir)
               const doneSnap = await db
                 .collection("raffles")
-                .where("durum", "==", "Tamamlandı")
+                .where("durum", "==", "Tamamlandı") // Burası genelde sabit olduğu için kalabilir
                 .orderBy("completedAt", "desc")
                 .limit(10)
                 .get();
@@ -2099,10 +2109,7 @@ exports.api = onRequest(
               let completedRaffles = [];
               doneSnap.forEach((doc) => {
                 const d = doc.data();
-                // Resim mantığı burası için de geçerli (basit tuttum)
                 let resimUrl = "https://www.modum.tr/i/m/001/0013355.png";
-                // ... (aynı resim kodları buraya da eklenebilir ama şart değil)
-
                 completedRaffles.push({
                   id: doc.id,
                   ad: d.cekilis_adi || d.name,
@@ -2120,7 +2127,7 @@ exports.api = onRequest(
               response = {
                 success: true,
                 active: activeRaffles,
-                completed: [],
+                completed: completedRaffles,
               };
             }
           } catch (e) {
@@ -3033,8 +3040,7 @@ exports.api = onRequest(
             if (isHakPaketi) {
               // A. Sistemdeki TÜM AKTİF çekilişleri çek (Tıpkı Günlük Yoklama gibi)
               const allRafflesSnap = await db
-                .collection("raffles")
-                .where("durum", "==", "Aktif")
+                .collection("raffles") // ✅ HEPSİNİ ÇAĞIR
                 .get();
               let activeRafflesList = [];
 
@@ -4284,9 +4290,8 @@ exports.api = onRequest(
             const nowISO = new Date().toISOString();
 
             // 1. SİSTEMDEKİ "GERÇEKTEN AKTİF" OLANLARI BUL
-            const allRafflesSnap = await db
-              .collection("raffles")
-              .where("durum", "==", "Aktif")
+            const snapshot = await db
+              .collection("raffles") // ✅ HEPSİNİ ÇAĞIR
               .get();
 
             if (allRafflesSnap.empty) {
