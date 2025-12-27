@@ -5071,53 +5071,83 @@ ${replyHtml}
         document.body.appendChild(div);
       },
 
-      // GÜNLÜK YOKLAMA (ANLIK GÖRSEL GÜNCELLEMELİ)
-      dailyCheckIn: function () {
+      // GÜNLÜK YOKLAMA (AKILLI UYARI SİSTEMLİ v2.0)
+      dailyCheckIn: function (isConfirmed) {
+        // 1. GİRİŞ KONTROLÜ
         if (!APP_STATE.user || !APP_STATE.user.email) {
           this.showGuestPopup("daily");
           return;
         }
 
+        // 2. ONAY KONTROLÜ (Eğer onay gelmemişse Modal Aç)
+        if (!isConfirmed) {
+          // Varsa eski modalı temizle
+          var old = document.getElementById("mdm-daily-check-modal");
+          if (old) old.remove();
+
+          var html = `
+<div id="mdm-daily-check-modal" class="mdm-modal active" style="z-index:9999999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+<div class="mdm-modal-content" style="width:90%; max-width:400px; background:#1e293b; border:1px solid #334155; border-radius:20px; padding:0; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+
+<div style="background:linear-gradient(135deg, #1e293b, #0f172a); padding:25px; text-align:center; border-bottom:1px solid #334155;">
+<div style="font-size:50px; margin-bottom:10px;">🤔</div>
+<h3 style="color:#fff; margin:0; font-size:20px;">Emin misin?</h3>
+<p style="color:#cbd5e1; font-size:14px; margin-top:10px; line-height:1.5;">
+Tüm çekilişlere katıldın mı?<br>
+<span style="color:#fbbf24; font-weight:bold;">(Hakkın boşa gitmesin?)</span>
+  </p>
+  </div>
+
+<div style="padding:20px; display:flex; flex-direction:column; gap:10px;">
+
+<button onclick="document.getElementById('mdm-daily-check-modal').remove(); ModumApp.dailyCheckIn(true);" 
+style="background:#10b981; color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; transition:0.2s;">
+<i class="fas fa-check-circle"></i> EVET, KATILDIM
+  </button>
+
+<button onclick="document.getElementById('mdm-daily-check-modal').remove(); alert('Lütfen önce vitrine gidip katılın! Hakkınız boşa gitmesin.'); ModumApp.switchTab('home');" 
+style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid #334155; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:13px; transition:0.2s;">
+HAYIR, BEKLE ✋
+  </button>
+
+  </div>
+  </div>
+  </div>`;
+
+          var d = document.createElement("div");
+          d.innerHTML = html;
+          document.body.appendChild(d);
+          return; // İşlemi durdur, kullanıcı seçimini beklesin
+        }
+
+        // --- BURADAN AŞAĞISI STANDART İŞLEM (EVET DENİLDİYSE ÇALIŞIR) ---
         var btn = document.querySelector(".mdm-btn-lucky");
         if (btn) {
-          btn.innerHTML =
-            '<i class="fas fa-circle-notch fa-spin"></i> İşleniyor...';
+          btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> İşleniyor...';
           btn.disabled = true;
         }
 
         fetchApi("daily_check_in", { email: APP_STATE.user.email }).then(
           (res) => {
             if (res && res.success) {
-              // --- 🔥 BURASI YENİ: GÖRSEL HİLE BAŞLANGICI ---
-              // Backend bize yeni puanı gönderdi, hemen ekrana basıyoruz.
+              // Backend yeni puanı gönderdi, ekrana bas.
               if (res.newPoints) {
                 APP_STATE.user.puan = parseInt(res.newPoints);
-
-                // 1. Üst Barı Güncelle
                 var navXP = document.getElementById("nav-live-xp");
-                if (navXP)
-                  navXP.innerText =
-                    APP_STATE.user.puan.toLocaleString() + " XP";
+                if (navXP) navXP.innerText = APP_STATE.user.puan.toLocaleString() + " XP";
 
                 var navNameXP = document.getElementById("nav-user-name");
-                if (navNameXP)
-                  navNameXP.innerText = APP_STATE.user.puan + " XP";
+                if (navNameXP) navNameXP.innerText = APP_STATE.user.puan + " XP";
 
-                // 2. 🔥 PROFİL KARTINI ANINDA YENİLE (İşte Eksik Olan Bu!)
-                var profileContainer = document.getElementById(
-                  "mdm-profile-container"
-                );
+                // Profili Yenile
+                var profileContainer = document.getElementById("mdm-profile-container");
                 if (profileContainer) {
                   profileContainer.innerHTML = renderProfileTab(APP_STATE.user);
                 }
-
-                // 3. Hafızayı Güncelle
-                localStorage.setItem(
-                  "mdm_user_cache",
-                  JSON.stringify(APP_STATE.user)
-                );
+                localStorage.setItem("mdm_user_cache", JSON.stringify(APP_STATE.user));
               }
-              // 1. BUTONU KİLİTLE
+
+              // Butonu Kilitle
               var trDate = new Date(new Date().getTime() + 3 * 60 * 60 * 1000);
               var todayStr = trDate.toISOString().split("T")[0];
               APP_STATE.user.songunlukhaktarihi = todayStr;
@@ -5125,51 +5155,30 @@ ${replyHtml}
               if (btn) {
                 btn.style.background = "#475569";
                 btn.style.cursor = "default";
-                btn.innerHTML =
-                  '<i class="fas fa-check"></i> Bugün Alındı (Yarın Gel)';
+                btn.innerHTML = '<i class="fas fa-check"></i> Bugün Alındı (Yarın Gel)';
                 btn.onclick = null;
               }
 
-              // 2. PUANLARI GÜNCELLE
-              if (res.newPoints) {
-                APP_STATE.user.puan = parseInt(res.newPoints);
-                var navXP = document.getElementById("nav-user-name");
-                var mainXP = document.getElementById("canli-puan-kutusu");
-                if (navXP) navXP.innerText = APP_STATE.user.puan + " XP";
-                if (mainXP) mainXP.innerText = APP_STATE.user.puan + " XP";
-              }
-
-              // 3. 🔥 SERİYİ GÜNCELLE VE ÇUBUKLARI BOYA (Kritik Nokta)
+              // Seriyi Güncelle
               if (res.newStreak) {
                 APP_STATE.user.gunlukSeri = parseInt(res.newStreak);
-                var streakContainer = document.getElementById(
-                  "mdm-streak-container"
-                );
+                var streakContainer = document.getElementById("mdm-streak-container");
                 if (streakContainer) {
-                  streakContainer.innerHTML = renderStreakBars(
-                    APP_STATE.user.gunlukSeri
-                  );
+                  streakContainer.innerHTML = renderStreakBars(APP_STATE.user.gunlukSeri);
                 }
               }
 
-              // Hafızayı kaydet
-              localStorage.setItem(
-                "mdm_user_cache",
-                JSON.stringify(APP_STATE.user)
-              );
+              localStorage.setItem("mdm_user_cache", JSON.stringify(APP_STATE.user));
 
               if (typeof loadTasksData === "function") {
-                setTimeout(function () {
-                  loadTasksData();
-                }, 1000);
+                setTimeout(function () { loadTasksData(); }, 1000);
               }
 
               alert("🎉 " + res.message);
             } else {
               alert("⚠️ " + (res ? res.message : "Hata oluştu."));
               if (btn) {
-                btn.innerHTML =
-                  '<i class="fas fa-sun"></i> Bugünkü Şansını Kap! (+1 Hak)';
+                btn.innerHTML = '<i class="fas fa-sun"></i> Bugünkü Şansını Kap! (+1 Hak)';
                 btn.disabled = false;
               }
             }
