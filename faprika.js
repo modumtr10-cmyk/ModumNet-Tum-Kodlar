@@ -3802,7 +3802,7 @@ style="flex:1; padding:12px; border:1px solid transparent; border-radius:8px; cu
   </button>
 <button class="mdm-store-tab-btn" data-tab="products" onclick="ModumApp.switchStoreCategory('products')" 
 style="flex:1; padding:12px; border:1px solid transparent; border-radius:8px; cursor:pointer; font-weight:bold; font-size:13px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px;">
-<i class="fas fa-gift"></i> ÜRÜNLER & FIRSATLAR
+<i class="fas fa-gift"></i> KOZMETİK & AKSESUARLAR
   </button>
   </div>
 
@@ -5202,7 +5202,7 @@ ${replyHtml}
           );
         } else {
           // Link Görevi (Instagram Takip vb.)
-          window.open(link || "https://instagram.com/modumnet", "_blank");
+          window.open(link || "https://instagram.com/modumnetco", "_blank");
 
           // Basit Onay Mekanizması
           setTimeout(() => {
@@ -8134,28 +8134,33 @@ opacity: 0; animation: fadeUp 0.6s ease-out 1.1s forwards;
 
 /* 1. YAZIYI YUKARI TAŞIMA */
 .mdm-intro-content-wrapper { 
-transform: translateY(-130px) !important; 
-}
+        transform: translateY(-130px) !important; 
+        display: flex !important;           /* Flexbox kullan */
+        justify-content: center !important; /* Ortala */
+        align-items: center !important;     /* Hizala */
+        gap: 0 !important;                  /* Aradaki tüm boşlukları öldür */
+    }
 
 /* 2. 'M' HARFİ AYARI */
 .mdm-intro-m { 
-font-size: 32px !important; 
-/* Aşırı itmek yerine hafifçe sağa çekiyoruz */
-margin-right: -2px !important; 
-margin-left: 0 !important;
-/* Harfin kendi boşluğunu sıfırla */
-padding: 0 !important;
-line-height: 1 !important;
-}
+        font-size: 32px !important; 
+        margin-right: -2px !important;  /* Hafifçe yazıya yapıştır */
+        margin-left: 0 !important;
+        padding: 0 !important;
+        width: auto !important;         /* Gereksiz genişlik kaplamasın */
+        display: block !important;
+    }
 
 /* 3. 'ODUMNET' YAZISI AYARI */
 .mdm-intro-text { 
-font-size: 32px !important; 
-/* 🔥 KRİTİK NOKTA: Masaüstündeki boşluğu iptal edip, M'ye doğru çektik */
-margin-left: -2px !important; 
-padding-left: 0 !important;
-line-height: 1 !important;
-}
+        font-size: 32px !important; 
+        
+        /* 🔥 ÖNEMLİ: Yazıyı kutunun SOLUNA yasla ki M'den kaçmasın */
+        text-align: left !important;    
+        
+        margin-left: 0 !important;      /* Ekstra margine gerek yok, M hallediyor */
+        padding-left: 0 !important;
+    }
 
 /* Yazı Açılma Animasyonu */
 @keyframes expandText { 
