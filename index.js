@@ -5138,7 +5138,112 @@ exports.api = onRequest(
           } catch (error) {
             response = { success: false, message: error.message };
           }
-        } // --- ÜRÜN HAVUZU (SKU) - TARİH FİX ---
+        } // --- A'DAN Z'YE KULLANICI SİLME (TAM TEMİZLİK) ---
+        else if (islem === "delete_user_complete") {
+          const { email } = data;
+
+          if (!email) {
+            response = { success: false, message: "E-posta belirtilmedi." };
+          } else {
+            const db = admin.firestore();
+            const batch = db.batch(); // Toplu işlem çantası
+            let deletedCount = 0;
+
+            try {
+              // 1. Kullanıcı Profilini Sil
+              const userRef = db.collection("users").doc(email);
+              batch.delete(userRef);
+              deletedCount++;
+
+              // 2. Puan Geçmişini Sil (point_history)
+              // Not: Batch limiti 500'dür. Eğer kullanıcı çok eskiyse hepsi silinmeyebilir
+              // ama admin panelinden işlemi 2-3 kere yaparsan hepsi gider.
+              const historySnap = await db
+                .collection("point_history")
+                .where("email", "==", email)
+                .limit(200)
+                .get();
+              historySnap.forEach((doc) => batch.delete(doc.ref));
+
+              // 3. Görev İlerlemelerini Sil (user_task_progress)
+              const taskSnap = await db
+                .collection("user_task_progress")
+                .where("email", "==", email)
+                .limit(100)
+                .get();
+              taskSnap.forEach((doc) => batch.delete(doc.ref));
+
+              // 4. Çekiliş Biletlerini Sil (raffle_participants)
+              const ticketSnap = await db
+                .collection("raffle_participants")
+                .where("userEmail", "==", email)
+                .limit(100)
+                .get();
+              ticketSnap.forEach((doc) => {
+                batch.delete(doc.ref);
+                // DİKKAT: Çekiliş sayacını düşürmüyoruz (maliyet artmasın diye), bilet silinir ama sayı sabit kalır.
+                // Bu "Görünmez Bilet" etkisi yaratır, çekilişte çıkmaz.
+              });
+
+              // 5. Kazananlar Listesinden Sil (raffle_winners)
+              const winnerSnap = await db
+                .collection("raffle_winners")
+                .where("userEmail", "==", email)
+                .limit(50)
+                .get();
+              winnerSnap.forEach((doc) => batch.delete(doc.ref));
+
+              // 6. Referanslarını Sil (referrals)
+              // Hem davet eden hem davet edilen olarak bak
+              const refSnap1 = await db
+                .collection("referrals")
+                .where("inviter", "==", email)
+                .get();
+              const refSnap2 = await db
+                .collection("referrals")
+                .where("invitee", "==", email)
+                .get();
+              refSnap1.forEach((doc) => batch.delete(doc.ref));
+              refSnap2.forEach((doc) => batch.delete(doc.ref));
+
+              // 7. Destek Taleplerini Sil (feedback)
+              const feedSnap = await db
+                .collection("feedback")
+                .where("email", "==", email)
+                .get();
+              feedSnap.forEach((doc) => batch.delete(doc.ref));
+
+              // 8. Bildirim Aboneliğini Sil
+              const notifSnap = await db
+                .collection("notifications")
+                .where("e_posta", "==", email)
+                .get();
+              notifSnap.forEach((doc) => batch.delete(doc.ref));
+
+              // İŞLEMİ TAMAMLA
+              await batch.commit();
+
+              // Güvenlik Logu At
+              await logSecurity(
+                "KULLANICI_SILME",
+                `${email} ve tüm verileri silindi.`
+              );
+
+              response = {
+                success: true,
+                message: `Kullanıcı ve ilişkili ${
+                  deletedCount + historySnap.size + ticketSnap.size
+                } veri silindi.`,
+              };
+            } catch (error) {
+              response = {
+                success: false,
+                message: "Silme hatası: " + error.message,
+              };
+            }
+          }
+        }
+        // --- ÜRÜN HAVUZU (SKU) - TARİH FİX ---
         else if (islem === "get_products") {
           // Hız için 200 limit koyduk, gerekirse artırılabilir
           const snapshot = await db.collection("product_pool").limit(200).get();
