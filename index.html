@@ -3343,12 +3343,18 @@
   <td>${dogumGunuGosterim} ${odulRozeti}</td>
   
   <td style="display:flex; gap:5px;">
-    <button class="btn btn-outline btn-sm" onclick="openGivePointModal('${escapeHtml(
-      u.email
-    )}')" title="Düzenle">
+  <button class="btn btn-outline btn-sm" onclick="openGivePointModal('${
+    u.email
+  }')" title="Düzenle">
       <i class="fas fa-edit"></i>
-    </button>
-  </td>
+  </button>
+  
+  <button class="btn btn-danger btn-sm" onclick="deleteUserComplete('${
+    u.email
+  }')" title="Kullanıcıyı ve Tüm Verilerini Sil">
+      <i class="fas fa-trash"></i>
+  </button>
+</td>
 </tr>`;
             });
 
@@ -6388,6 +6394,29 @@
         if (!confirm("Silinsin mi?")) return;
         await fetchApi("delete_survey", { id: id });
         loadSurveys();
+      }
+      // --- 🔥 KULLANICIYI KOMPLE SİLME FONKSİYONU ---
+      function deleteUserComplete(email) {
+        // Güvenlik sorusu
+        if (
+          !confirm(
+            "⚠️ DİKKAT!\n\n" +
+              email +
+              " kullanıcısı silinecek.\n\nBu işlem geri alınamaz:\n- Biletleri silinir\n- Puanları silinir\n- Görev geçmişi silinir\n- Listeden kaldırılır\n\nOnaylıyor musun?"
+          )
+        ) {
+          return;
+        }
+
+        // Backend'e emri gönder
+        fetchApi("delete_user_complete", { email: email }).then((data) => {
+          if (data && data.success) {
+            alert("✅ " + data.message);
+            loadUsers(); // Tabloyu yenile ki gittiğini gör
+          } else {
+            alert("❌ Hata: " + (data ? data.message : "Bilinmiyor"));
+          }
+        });
       }
     </script>
     <script>
