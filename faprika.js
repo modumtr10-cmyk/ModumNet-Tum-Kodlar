@@ -4645,7 +4645,6 @@ PAYLAŞMADAN DEVAM ET & KATIL ✅
         document.body.appendChild(d);
       },
 
-      // 4. SON İŞLEM (Veritabanına kaydet)
       confirmFinalJoin: function (raffleId) {
         var btn = document.querySelector("#mdm-modal-buddy .mdm-btn-lucky");
         if (btn) {
@@ -4662,7 +4661,16 @@ PAYLAŞMADAN DEVAM ET & KATIL ✅
           document.getElementById("mdm-modal-buddy").remove();
           if (d) {
             alert(d.message);
-            if (d.success) location.reload();
+            if (d.success) {
+              // 🔥 YENİ EKLENEN KISIM: Eski hafızayı siliyoruz ki sayı güncellensin
+              localStorage.removeItem("mdm_cache_get_showcase_data"); 
+              if (APP_STATE.user && APP_STATE.user.email) {
+                localStorage.removeItem("mdm_cache_get_user_tickets_" + APP_STATE.user.email);
+              }
+              // -------------------------------------------------------------
+
+              location.reload(); // Şimdi sayfayı yeniliyoruz
+            }
           }
         });
       },
@@ -5817,6 +5825,12 @@ Veriler Analiz Ediliyor...
               var chanceBox = document.getElementById("mdm-chance-box");
               if (chanceBox) {
                 chanceBox.innerHTML = `<div class="mdm-stat-val" style="color:${chanceColor}; font-size:12px;">${chanceText}</div><div class="mdm-stat-lbl">(${myCount} Bilet)</div>`;
+              }
+            }
+            else {
+              var chanceBox = document.getElementById("mdm-chance-box");
+              if(chanceBox) {
+                chanceBox.innerHTML = '<div class="mdm-stat-val" style="color:#94a3b8; font-size:12px;">%0</div><div class="mdm-stat-lbl">(Giriş Yap)</div>';
               }
             }
 
