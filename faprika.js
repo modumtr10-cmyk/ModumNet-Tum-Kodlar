@@ -8134,33 +8134,33 @@ opacity: 0; animation: fadeUp 0.6s ease-out 1.1s forwards;
 
 /* 1. YAZIYI YUKARI TAŞIMA */
 .mdm-intro-content-wrapper { 
-        transform: translateY(-130px) !important; 
-        display: flex !important;           /* Flexbox kullan */
-        justify-content: center !important; /* Ortala */
-        align-items: center !important;     /* Hizala */
-        gap: 0 !important;                  /* Aradaki tüm boşlukları öldür */
-    }
+transform: translateY(-130px) !important; 
+display: flex !important;           /* Flexbox kullan */
+justify-content: center !important; /* Ortala */
+align-items: center !important;     /* Hizala */
+gap: 0 !important;                  /* Aradaki tüm boşlukları öldür */
+}
 
 /* 2. 'M' HARFİ AYARI */
 .mdm-intro-m { 
-        font-size: 32px !important; 
-        margin-right: -2px !important;  /* Hafifçe yazıya yapıştır */
-        margin-left: 0 !important;
-        padding: 0 !important;
-        width: auto !important;         /* Gereksiz genişlik kaplamasın */
-        display: block !important;
-    }
+font-size: 32px !important; 
+margin-right: -2px !important;  /* Hafifçe yazıya yapıştır */
+margin-left: 0 !important;
+padding: 0 !important;
+width: auto !important;         /* Gereksiz genişlik kaplamasın */
+display: block !important;
+}
 
 /* 3. 'ODUMNET' YAZISI AYARI */
 .mdm-intro-text { 
-        font-size: 32px !important; 
-        
-        /* 🔥 ÖNEMLİ: Yazıyı kutunun SOLUNA yasla ki M'den kaçmasın */
-        text-align: left !important;    
-        
-        margin-left: 0 !important;      /* Ekstra margine gerek yok, M hallediyor */
-        padding-left: 0 !important;
-    }
+font-size: 32px !important; 
+
+/* 🔥 ÖNEMLİ: Yazıyı kutunun SOLUNA yasla ki M'den kaçmasın */
+text-align: left !important;    
+
+margin-left: 0 !important;      /* Ekstra margine gerek yok, M hallediyor */
+padding-left: 0 !important;
+}
 
 /* Yazı Açılma Animasyonu */
 @keyframes expandText { 
